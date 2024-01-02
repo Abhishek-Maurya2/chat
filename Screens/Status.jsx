@@ -4,20 +4,20 @@ import MyStatus from "./statusComp/MyStatus.jsx";
 import RecentStatus from "./statusComp/RecentStatus.jsx";
 import ViewedStatus from "./statusComp/ViewedStatus.jsx";
 
-export default class Status extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Status</Text>
-        <ScrollView horizontal style={styles.status}>
-          <MyStatus />
-          <RecentStatus />
-          <ViewedStatus />
-        </ScrollView>
-      </View>
-    );
-  }
-}
+const Status = () => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Status</Text>
+      <ScrollView horizontal style={styles.status}>
+        <MyStatus />
+        <RecentStatus />
+        <ViewedStatus />
+      </ScrollView>
+    </View>
+  );
+};
+
+export default Status;
 
 const styles = StyleSheet.create({
   container: {

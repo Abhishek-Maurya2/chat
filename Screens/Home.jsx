@@ -9,7 +9,7 @@ import { ref, getDownloadURL } from "firebase/storage";
 const Home = ({ route }) => {
   const [imageUrl, setImageUrl] = useState(null);
   const { user } = route.params;
-  // console.log(user);
+  console.log("Data in Home : ",user);
 
   const Logout = () => {
     // Logout logic here
@@ -27,16 +27,18 @@ const Home = ({ route }) => {
   }, []);
 
   const fetchImage = async () => {
-    const storageRef = ref(FirebaseStorage, "ProfilePic/" + user.uid);
+    // const storageRef = ref(FirebaseStorage, "ProfilePic/" + user.uid);
 
-    getDownloadURL(storageRef)
-      .then((url) => {
-        // console.log(url);
-        setImageUrl(url);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    // getDownloadURL(storageRef)
+    //   .then((url) => {
+    //     // console.log(url);
+    //     setImageUrl(url);
+    //   })
+    //   .catch((error) => {
+    //     console.error(error);
+    //   });
+    console.log("Image Url : ", user.profilePic);
+    setImageUrl(user.profilePic);
   };
   return (
     <View style={styles.container}>
