@@ -7,6 +7,8 @@ import Signup from "./Auth/Signup";
 import Home from "./Screens/Home";
 import SplashScreen from "./Screens/SplashScreen";
 import { Provider } from "react-native-paper";
+import AddChat from "./Screens/Chat/AddChat";
+import ChatPage from "./Screens/Chat/ChatPage";
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -32,6 +34,16 @@ export default function App() {
           <Stack.Screen
             name="Home"
             component={Home}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AddChat"
+            component={AddChat}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ChatPage"
+            component={ChatPage}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

@@ -6,25 +6,12 @@ import Calls from "../Screens/Calls";
 import { Feather } from "react-native-vector-icons";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 
-
 const Tab = createMaterialBottomTabNavigator();
 
 const Navigation = () => {
   return (
     <Tab.Navigator
       initialRouteName="Chat"
-      screenOptions={{
-        tabBarActiveTintColor: "white",
-        tabBarIndicatorStyle: {
-          backgroundColor: "white",
-        },
-        tabBarLabelStyle: {
-          fontWeight: "bold",
-        },
-        tabBarStyle: {
-          backgroundColor: "#0e806a",
-        },
-      }}
     >
       <Tab.Screen
         name="Chat"
