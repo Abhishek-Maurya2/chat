@@ -20,7 +20,7 @@ const Login = () => {
              getDoc(doc(FirestoreDB, "users", userCred?.user.uid)).then(
                (docSnap) => {
                  if (docSnap.exists()) {
-                   console.log("DocSnap Data: ", docSnap.data());
+                  //  console.log("DocSnap Data: ", docSnap.data());
                  }
                }
              );

@@ -22,7 +22,7 @@ const SplashScreen = () => {
               }
             })
             .then(() => {
-              navigation.replace("Home");
+              navigation.replace("Home", { user: userCred });
             });
         } else {
           navigation.replace("Login");

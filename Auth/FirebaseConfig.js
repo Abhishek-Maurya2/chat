@@ -20,6 +20,9 @@ const FirebaseAuth = initializeAuth(App, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
+//Web
+// const FirebaseAuth = initializeAuth(App);
+
 const FirestoreDB = getFirestore(App);
 
 const FirebaseStorage = getStorage(App);
