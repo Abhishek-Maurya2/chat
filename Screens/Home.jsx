@@ -37,7 +37,7 @@ const Home = ({ route }) => {
     //   .catch((error) => {
     //     console.error(error);
     //   });
-    console.log("Image Url : ", user.profilePic);
+    // console.log("Image Url : ", user.profilePic);
     setImageUrl(user.profilePic);
   };
   return (

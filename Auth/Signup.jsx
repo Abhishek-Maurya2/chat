@@ -40,6 +40,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [PhoneNumber, setPhoneNumber] = useState("");
 
   const handleSignUp = async () => {
     if (email !== "" && pass !== "" && name !== "" && image !== null) {
@@ -53,12 +54,13 @@ const Signup = () => {
           const data = {
                 _id: userCred.user.uid,
                 fullName: name,
+                PhoneNumber: PhoneNumber,
                 profilePic: downloadURL,
                 providerData: userCred.user.providerData[0],
               };
               setDoc(doc(FirestoreDB, "users", userCred.user.uid), data)
                 .then(() => {
-                  navigation.navigate("Login");
+                  navigation.navigate("SplashScreen");
                 })
                 .catch((error) => {
                   console.error("Error writing document: ", error);
@@ -84,6 +86,11 @@ const Signup = () => {
         placeholder="Name"
         style={styles.input}
         onChangeText={setName}
+      />
+      <TextInput
+        placeholder="Phone Number"
+        style={styles.input}
+        onChangeText={setPhoneNumber}
       />
       <TextInput
         placeholder="Email"

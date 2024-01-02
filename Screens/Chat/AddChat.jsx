@@ -10,11 +10,22 @@ import React, { useState, useEffect } from "react";
 import { Feather } from "react-native-vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-import { FirestoreDB, firestoreDB } from "./../../Auth/FirebaseConfig";
-import { getDocs, query, where, collection, orderBy, startAt, endAt } from "firebase/firestore";
+import { FirestoreDB, FirebaseAuth } from "./../../Auth/FirebaseConfig";
+import {
+  getDocs,
+  query,
+  doc,
+  collection,
+  orderBy,
+  startAt,
+  endAt,
+  updateDoc,
+  arrayUnion
+} from "firebase/firestore";
 
 const AddChat = () => {
   const navigation = useNavigation();
+  const uid = FirebaseAuth.currentUser.uid;
 
   const [showSearch, setShowSearch] = useState(false);
   const [addChat, setAddChat] = useState("");
@@ -30,22 +41,39 @@ const AddChat = () => {
     setShowSearch(true);
   };
 
- const search = async () => {
-   const q = query(
-     collection(FirestoreDB, "users"),
-     orderBy("PhoneNumber"),
-     startAt(addChat),
-     endAt(`${addChat}\uf8ff`)
-   );
-   const querySnapshot = await getDocs(q);
-   const results = [];
-   querySnapshot.forEach((doc) => {
-     results.push(doc.data());
-     console.log(doc.data());
-   });
-   setSearchResults(results);
- };
+  const search = async () => {
+    const q = query(
+      collection(FirestoreDB, "users"),
+      orderBy("PhoneNumber"),
+      startAt(addChat),
+      endAt(`${addChat}\uf8ff`)
+    );
+    const querySnapshot = await getDocs(q);
+    const results = [];
+    querySnapshot.forEach((doc) => {
+      results.push(doc.data());
+      console.log("Search Data  : ",doc.data());
+    });
+    setSearchResults(results);
+  };
 
+  const AddFriend = async (friendID) => {
+    console.log(friendID);
+    try {
+      const userRef = doc(FirestoreDB, "users", uid);
+      await updateDoc(userRef, {
+        Friends: arrayUnion(friendID),
+      });
+    } catch (error) {
+      console.error("Error adding friend:", error);
+      // Handle the error as needed (e.g., show a message to the user)
+    }
+    const userRef = doc(FirestoreDB, "users", friendID);
+    await updateDoc(userRef, {
+      Friends: arrayUnion(uid),
+    });
+    navigation.replace("SplashScreen");
+  };
 
 
   return (
@@ -68,7 +96,7 @@ const AddChat = () => {
             />
           </View>
           <View style={styles.addCont}>
-            <Pressable style={styles.btnCont} onPress={search}>
+            <Pressable style={styles.btnCont}>
               <Feather
                 name="user-plus"
                 size={28}
@@ -80,7 +108,7 @@ const AddChat = () => {
             {searchResults.map((user, index) => (
               <View key={index}>
                 {/* Replace 'name' and 'phoneNumber' with the actual field names in your Firestore documents */}
-                <Pressable onPress={() => navigation.navigate(ChatPage)}>
+                <Pressable onPress={() => {AddFriend(user._id)}}>
                   <View style={styles.listItem}>
                     <Image
                       source={{ uri: user.profilePic }}
@@ -227,5 +255,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
   },
-  
 });
