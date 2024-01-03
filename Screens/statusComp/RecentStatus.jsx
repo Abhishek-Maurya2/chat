@@ -7,9 +7,12 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import { StatusData } from "./StatusData";
 import FullModal from "./utils/FullModal";
+
+import { FirebaseAuth, FirestoreDB } from "../../Auth/FirebaseConfig";
+import { collection, doc, getDocs, query, where, onSnapshot } from "firebase/firestore";
 
 const RecentStatus = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -24,21 +27,39 @@ const RecentStatus = () => {
     setIsModalVisible(false);
   };
 
+  const [status, setStatus] = useState([]);
+  const user = FirebaseAuth.currentUser;
+
+  useLayoutEffect(() => {
+    const q = query(
+      collection(FirestoreDB, "users"),
+      where("participants", "array-contains", user.uid),
+      where("status", "!=", null)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setStatus(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    });
+    
+    console.log("status : ", status);
+    return () => unsubscribe();
+  }, []);
+
   return (
     <View style={styles.container}>
       <ScrollView horizontal style={styles.recent}>
-        {StatusData.map((item) => (
+        {status.map((item) => (
           <Pressable key={item.id} onPress={() => handlePress(item)}>
             <View style={styles.boxUi}>
               <ImageBackground
-                source={item.statusImg}
+                source={{uri : item.status}}
                 blurRadius={10}
                 style={styles.backgroundImage}
               >
                 <View style={styles.imgStory}>
-                  <Image source={item.profileImg} style={styles.statusStyle} />
+                  <Image source={{uri : item.profilePic}} style={styles.statusStyle} />
                 </View>
-                <Text style={styles.userName}>{item.name}</Text>
+                <Text style={styles.userName}>{item.fullName}</Text>
               </ImageBackground>
             </View>
           </Pressable>

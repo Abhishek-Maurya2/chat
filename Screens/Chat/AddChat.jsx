@@ -78,7 +78,7 @@ const AddChat = () => {
     await updateDoc(userRef, {
       participants: arrayUnion(friendID),
     }).then(() => {
-      navigation.replace("SplashScreen");
+      navigation.goBack();
     });
   };
 

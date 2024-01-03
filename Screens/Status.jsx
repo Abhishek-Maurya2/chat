@@ -11,7 +11,7 @@ const Status = () => {
       <ScrollView horizontal style={styles.status}>
         <MyStatus />
         <RecentStatus />
-        <ViewedStatus />
+        {/* <ViewedStatus /> */}
       </ScrollView>
     </View>
   );

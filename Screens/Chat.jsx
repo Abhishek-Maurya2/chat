@@ -12,7 +12,6 @@ const Chat = () => {
   const navigation = useNavigation();
 
   const [chats, setChats] = useState([]);
-  const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
     const q = query(
@@ -31,7 +30,6 @@ const Chat = () => {
   return (
     <View style={styles.container}>
       {chats.map((chat) => (
-        
         <Pressable
           key={chat._id}
           onPress={() => navigation.navigate("ChatPage", { chatId: chat })}
@@ -41,13 +39,24 @@ const Chat = () => {
             <View style={styles.metaData}>
               <View style={styles.title}>
                 <Text style={styles.name}>{chat.fullName}</Text>
-                <Text style={styles.time}>room.time</Text>
+                <Text style={styles.time}>
+                  {/* {chat.LastMessageTime.seconds &&
+                    new Date(parseInt(chat.LastMessageTime.seconds) * 1000).toLocaleTimeString(
+                      "en-US",
+                      {
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                      }
+                    )} */}
+                    time
+                </Text>
               </View>
               <View style={styles.message}>
                 <Text style={styles.lastMessage} numberOfLines={1}>
-                  room.lastMessage
+                  last Message
                 </Text>
-                <Text style={styles.unread}>room.unread</Text>
+                <Text style={styles.unread}>9</Text>
               </View>
             </View>
           </View>
