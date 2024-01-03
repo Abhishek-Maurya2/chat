@@ -22,7 +22,7 @@ const SplashScreen = () => {
               if (docSnap.exists()) {
                 const userData = docSnap.data();
                 setUser(userData);
-                console.log("Snapshot data:", User);
+                // console.log("Snapshot data:", User);
                 navigation.replace("Home", { user: userData });
                 }
               })

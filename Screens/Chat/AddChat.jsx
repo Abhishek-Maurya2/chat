@@ -20,7 +20,8 @@ import {
   startAt,
   endAt,
   updateDoc,
-  arrayUnion
+  arrayUnion,
+  setDoc,
 } from "firebase/firestore";
 
 const AddChat = () => {
@@ -52,29 +53,34 @@ const AddChat = () => {
     const results = [];
     querySnapshot.forEach((doc) => {
       results.push(doc.data());
-      console.log("Search Data  : ",doc.data());
+      // console.log("Search Data  : ",doc.data());
     });
     setSearchResults(results);
   };
 
-  const AddFriend = async (friendID) => {
-    console.log(friendID);
-    try {
-      const userRef = doc(FirestoreDB, "users", uid);
-      await updateDoc(userRef, {
-        Friends: arrayUnion(friendID),
-      });
-    } catch (error) {
-      console.error("Error adding friend:", error);
-      // Handle the error as needed (e.g., show a message to the user)
+  const CreateChatRoom = async (friendID) => {
+    let chatRoomID;
+    if (uid < friendID) {
+      chatRoomID = `${uid}_${friendID}`;
+    } else {
+      chatRoomID = `${friendID}_${uid}`;
     }
-    const userRef = doc(FirestoreDB, "users", friendID);
-    await updateDoc(userRef, {
-      Friends: arrayUnion(uid),
+    const ref = doc(FirestoreDB, "chatRooms", chatRoomID);
+    await setDoc(ref, {
+      Messages: [],
+      participants: [uid, friendID],
     });
-    navigation.replace("SplashScreen");
+    const friendRef = doc(FirestoreDB, "users", friendID);
+    await updateDoc(friendRef, {
+      participants: arrayUnion(uid),
+    });
+    const userRef = doc(FirestoreDB, "users", uid);
+    await updateDoc(userRef, {
+      participants: arrayUnion(friendID),
+    }).then(() => {
+      navigation.replace("SplashScreen");
+    });
   };
-
 
   return (
     <View style={styles.container}>
@@ -108,7 +114,11 @@ const AddChat = () => {
             {searchResults.map((user, index) => (
               <View key={index}>
                 {/* Replace 'name' and 'phoneNumber' with the actual field names in your Firestore documents */}
-                <Pressable onPress={() => {AddFriend(user._id)}}>
+                <Pressable
+                  onPress={() => {
+                    CreateChatRoom(user._id);
+                  }}
+                >
                   <View style={styles.listItem}>
                     <Image
                       source={{ uri: user.profilePic }}

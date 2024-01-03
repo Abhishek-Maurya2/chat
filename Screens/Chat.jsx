@@ -1,44 +1,70 @@
 import { Text, View, StyleSheet, Image, Pressable } from "react-native";
-import React, { useEffect, useState, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import ChatPage from "./Chat/ChatPage";
 
+import { FirestoreDB, FirebaseAuth } from "../Auth/FirebaseConfig";
+import { collection, doc, getDocs, query, where, onSnapshot } from "firebase/firestore";
 
 const Chat = () => {
+  const user = FirebaseAuth.currentUser;
   const navigation = useNavigation();
+
+  const [chats, setChats] = useState([]);
+  const [participants, setParticipants] = useState([]);
+
+  useEffect(() => {
+    const q = query(
+      collection(FirestoreDB, "users"),
+      where("participants", "array-contains", user.uid)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setChats(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    });
+    
+    // console.log("Chats : ", chats);
+    return () => unsubscribe();
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate(ChatPage)}>
-        <View style={styles.listItem}>
-          <Image
-            source={require("./../assets/images/1.png")}
-            style={styles.photos}
-          />
-          <View style={styles.metaData}>
-            <View style={styles.title}>
-              <Text style={styles.name}>Chat Name</Text>
-              <Text style={styles.time}>room.time</Text>
-            </View>
-            <View style={styles.message}>
-              <Text style={styles.lastMessage} numberOfLines={1}>
-                room.lastMessage
-              </Text>
-              <Text style={styles.unread}>room.unread</Text>
+      {chats.map((chat) => (
+        
+        <Pressable
+          key={chat._id}
+          onPress={() => navigation.navigate("ChatPage", { chatId: chat })}
+        >
+          <View style={styles.listItem}>
+            <Image source={{ uri: chat.profilePic }} style={styles.photos} />
+            <View style={styles.metaData}>
+              <View style={styles.title}>
+                <Text style={styles.name}>{chat.fullName}</Text>
+                <Text style={styles.time}>room.time</Text>
+              </View>
+              <View style={styles.message}>
+                <Text style={styles.lastMessage} numberOfLines={1}>
+                  room.lastMessage
+                </Text>
+                <Text style={styles.unread}>room.unread</Text>
+              </View>
             </View>
           </View>
-        </View>
-      </Pressable>
-      <Pressable style={styles.chatBtn} onPress={() => navigation.navigate("AddChat")}>
+        </Pressable>
+      ))}
+
+      <Pressable
+        style={styles.chatBtn}
+        onPress={() => navigation.navigate("AddChat")}
+      >
         <MaterialIcons name="chat" size={24} color="#fff" />
       </Pressable>
     </View>
   );
 };
 export default Chat;
-styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 20,

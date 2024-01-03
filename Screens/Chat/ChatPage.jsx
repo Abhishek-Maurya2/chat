@@ -13,8 +13,8 @@ import wallpaper from "./../../assets/images/wall.jpg";
 import { Feather, FontAwesome } from "react-native-vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-import { firestoreDB } from "./../../Auth/FirebaseConfig";
-// import { useSelector } from "react-redux";
+import { FirestoreDB, FirebaseAuth } from "./../../Auth/FirebaseConfig";
+
 import {
   addDoc,
   collection,
@@ -23,11 +23,16 @@ import {
   orderBy,
   query,
   onSnapshot,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+  Firestore,
 } from "firebase/firestore";
 
-import { MessageData } from "./MessageData";
 
-const ChatPage = () => {
+const ChatPage = ({ route }) => {
+  const navigation = useNavigation();
+
   const [showScrollIcon, setShowScrollIcon] = useState(false);
   const handleScroll = (event) => {
     const yOffset = event.nativeEvent.contentOffset.y;
@@ -42,12 +47,13 @@ const ChatPage = () => {
     }
   };
 
-  const navigation = useNavigation();
+  const data = route.params.chatId;
+  const friend = route.params.chatId._id;
+  const user = FirebaseAuth.currentUser.uid;
 
   // Footer
   const [message, setMessage] = useState("");
   const [sendEnable, setSendEnable] = useState(false);
-  // const user = useSelector((state) => state.userAuth.user);
 
   const onchange = (value) => {
     setMessage(value);
@@ -58,39 +64,29 @@ const ChatPage = () => {
   };
 
   const sendMessage = async () => {
+    let chatRoomID;
+    if (user < friend) {
+      chatRoomID = `${user}_${friend}`;
+    } else {
+      chatRoomID = `${friend}_${user}`;
+    }
+    const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
+    
+    const newMessage = {
+      text: message,
+      sender: user,
+      createdAt: new Date(),
+    };
+
+    await updateDoc(chatRoomRef, {
+      Messages: arrayUnion(newMessage),
+    });
+    
     setSendEnable(false);
-    // const timeStamp = serverTimestamp();
-    // const id = `${Date.now()}`;
-    // const _doc = {
-    //   _id: id,
-    //   roomId: room._id,
-    //   timeStamp: timeStamp,
-    //   message: message,
-    //   user: user,
-    // };
     setMessage("");
-    // await addDoc(
-    //   collection(doc(firestoreDB, "chats", room._id), "messages"),
-    //   _doc
-    // )
-    //   .then(() => {})
-    //   .catch((err) => alert(err));
   };
-
+  
   // Body
-
-  const [messages, setMessages] = useState(null);
-
-  // useLayoutEffect(() => {
-  //   const msgQuery = query(
-  //     collection(firestoreDB, "chats", room?._id, "messages"),
-  //     orderBy("timeStamp", "asc")
-  //   );
-  //   const unsubscribe = onSnapshot(msgQuery, (querySnap) => {
-  //     const upMsg = querySnap.docs.map((doc) => doc.data());
-  //     setMessages(upMsg);
-  //   });
-  // });
 
   const scrollViewRef = useRef();
   const scrollToBottom = () => {
@@ -142,6 +138,28 @@ const ChatPage = () => {
     );
   };
 
+  const [MessageData, setMessageData] = useState([]);
+  useLayoutEffect(() => {
+    let chatRoomID;
+    if (user < friend) {
+      chatRoomID = `${user}_${friend}`;
+    } else {
+      chatRoomID = `${friend}_${user}`;
+    }
+    const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
+
+    const unsubscribe = onSnapshot(chatRoomRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data().Messages;
+        setMessageData(data);
+        // console.log("MessageData : ", data);
+      } else {
+        console.log("No such document!");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
   return (
     <>
       <ImageBackground source={wallpaper} style={styles.wall}>
@@ -159,13 +177,12 @@ const ChatPage = () => {
               />
               <Image
                 style={styles.profile}
-                source={require("./../../assets/images/1.png")}
+                source={{uri : data.profilePic}}
               />
               <Text style={styles.title}>
-                {/* {room.chatName.lenght > 10
-                  ? `${room.chatName.slice(0, 10)}..`
-                  : room.chatName} */}
-                Chat Name
+                {data.fullName.lenght > 10
+                  ? `${data.fullName.slice(0, 10)}..`
+                  : data.fullName}
               </Text>
             </View>
             <View style={styles.right}>
@@ -198,32 +215,18 @@ const ChatPage = () => {
           onContentSizeChange={scrollToBottom}
           onScroll={handleScroll}
         >
-          {/* <View>
-            {messages?.map((msg, i) => {
-              if (msg.user.providerData.email === user.providerData.email) {
-                return (
-                  <View key={i}>
-                    {UserMessageView("Message", "1000000")}
-                  </View>
-                );
-              } else {
-                return (
-                  <View key={i}>
-                    {OtherUserMessageView("Message", "1000000")}
-                  </View>
-                );
-              }
-            })}
-          </View> */}
-          <View>
-            {MessageData.map((msg) => {
-              if (msg.id === "1") {
-                return UserMessageView(msg.message, msg.time);
-              } else {
-                return OtherUserMessageView(msg.message, msg.time);
-              }
-            })}
-          </View>
+
+          {/* Messages to be render here */}
+          {MessageData.map((message, index) => {
+            if (message.sender === user) {
+              return UserMessageView(message.text, message.createdAt.seconds);
+            } if(message.sender === friend) {
+              return OtherUserMessageView(
+                message.text,
+                message.createdAt.seconds
+              );
+            }
+          })}
         </ScrollView>
         {showScrollIcon && (
           <View style={styles.scroll}>
@@ -235,6 +238,7 @@ const ChatPage = () => {
             />
           </View>
         )}
+
 
         {/* Footer */}
 
@@ -283,6 +287,7 @@ const ChatPage = () => {
             )}
           </View>
         </View>
+
       </ImageBackground>
     </>
   );

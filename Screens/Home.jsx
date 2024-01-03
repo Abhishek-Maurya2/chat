@@ -9,7 +9,7 @@ import { ref, getDownloadURL } from "firebase/storage";
 const Home = ({ route }) => {
   const [imageUrl, setImageUrl] = useState(null);
   const { user } = route.params;
-  console.log("Data in Home : ",user);
+  // console.log("Data in Home : ",user);
 
   const Logout = () => {
     // Logout logic here
