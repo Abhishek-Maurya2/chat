@@ -2,6 +2,7 @@ import { View, StyleSheet, Modal, Image, Text } from "react-native";
 import React from "react";
 import ProgresBar from "./ProgresBar";
 import { Feather } from "@expo/vector-icons";
+import { Video } from "expo-av";
 
 
 const FullModal = (props) => {
@@ -29,12 +30,23 @@ const FullModal = (props) => {
                 setIsModalVisible((prev) => ({ ...prev, [item.id]: false }))
               }
             />
-            <Image source={item.profileImg} style={styles.profileImg} />
-            <Text style={styles.username}>{item.name}</Text>
+            <Image
+              source={{ uri: item.profilePic }}
+              style={styles.profileImg}
+            />
+            <Text style={styles.username}>{item.fullName}</Text>
           </View>
           <Feather name="more-vertical" color={"white"} size={18} />
         </View>
-        <Image source={item.statusImg} style={styles.storyImg} />
+        <Image source={{uri : item.status}} style={styles.storyImg} />
+        {/* <Video
+          source={{ uri : item.status}}
+          style={styles.storyImg}
+          resizeMode="cover"
+          shouldPlay={true}
+          isLooping={true}
+          
+        /> */}
         <Text style={styles.storyMsg}>{item.storyMsg}</Text>
         <View style={styles.replySection}>
           <Feather

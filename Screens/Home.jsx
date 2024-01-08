@@ -27,17 +27,6 @@ const Home = ({ route }) => {
   }, []);
 
   const fetchImage = async () => {
-    // const storageRef = ref(FirebaseStorage, "ProfilePic/" + user.uid);
-
-    // getDownloadURL(storageRef)
-    //   .then((url) => {
-    //     // console.log(url);
-    //     setImageUrl(url);
-    //   })
-    //   .catch((error) => {
-    //     console.error(error);
-    //   });
-    // console.log("Image Url : ", user.profilePic);
     setImageUrl(user.profilePic);
   };
   return (

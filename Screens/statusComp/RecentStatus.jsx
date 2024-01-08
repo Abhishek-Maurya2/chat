@@ -8,11 +8,10 @@ import {
   Pressable,
 } from "react-native";
 import React, { useState, useLayoutEffect } from "react";
-import { StatusData } from "./StatusData";
 import FullModal from "./utils/FullModal";
 
 import { FirebaseAuth, FirestoreDB } from "../../Auth/FirebaseConfig";
-import { collection, doc, getDocs, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 
 const RecentStatus = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -40,7 +39,6 @@ const RecentStatus = () => {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setStatus(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
-    
     console.log("status : ", status);
     return () => unsubscribe();
   }, []);

@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
-import React, { useState } from "react";
+import { View, Text, StyleSheet, Image, Pressable, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
 import Img from "./../../assets/images/1.png";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -9,42 +9,76 @@ import {
   FirebaseAuth,
 } from "../../Auth/FirebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, blob } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, blob, uploadBytesResumable } from "firebase/storage";
 
+import { useUser, pickImage } from "../../components/User.jsx";
 const MyStatus = () => {
   const [status, setStatus] = useState(null);
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      quality: 1,
-    });
+  const [loading, setLoading] = useState(true);
 
-    if (!result.canceled) {
-      setStatus(result.assets[0].uri);
-      // console.log("Image: ", result.assets[0].uri);
+  const usersData = useUser();
+  useEffect(() => {
+    // console.log("Status Screen Data : ", usersData);
+    if (usersData) {
+      setLoading(false);
+    }
+  }, [usersData]);
+
+  
+  // const pickImage = async () => {
+  //   // No permissions request is necessary for launching the image library
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  //     allowsEditing: true,
+  //     quality: 1,
+  //   });
+
+  //   if (!result.canceled) {
+  //     setStatus(result.assets[0].uri);
+  //     // console.log("Image: ", result.assets[0].uri);
+  //     uploadStatus();
+  //   }
+  // };
+  const pick = async () => {
+    const data = await pickImage();
+    if(data) {
+      setStatus(data);
       uploadStatus();
     }
-  };
+    else {
+      console.log("No Image Selected");
+    }
+  }
 
   const uploadStatus = async () => {
     const user = FirebaseAuth.currentUser.uid;
     const response = await fetch(status);
     const blob = await response.blob();
     const storageRef = ref(FirebaseStorage, "Status/" + user);
-    const snapshot = await uploadBytes(storageRef, blob);
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    uploadTask.on('state_changed', (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      console.log('Upload is ' + progress + '% done');
+      Alert.alert("Upload is " + progress + "% done");
+    });
+
+    const snapshot = await uploadTask;
     const downloadURL = await getDownloadURL(snapshot.ref);
     const data = {
       status: downloadURL,
     };
     await updateDoc(doc(FirestoreDB, "users", user), data);
-  }
-  
+  };
+
   return (
     <View style={styles.container}>
-      <Pressable style={styles.boxUi} onPress={pickImage}>
-        <Image source={Img} style={styles.Profile} />
+      <Pressable style={styles.boxUi} onPress={pick}>
+        {loading ? (
+          <Image source={Img} style={styles.Profile} />
+        ) : (
+          <Image source={{ uri: usersData.profilePic }} style={styles.Profile} />
+        )}
         <View style={styles.iconBg}>
           <Feather name="plus" size={16} color="#fff" />
         </View>

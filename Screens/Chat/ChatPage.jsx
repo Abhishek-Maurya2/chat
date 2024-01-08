@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useRef, useLayoutEffect } from "react";
 import wallpaper from "./../../assets/images/wall.jpg";
@@ -13,22 +14,15 @@ import wallpaper from "./../../assets/images/wall.jpg";
 import { Feather, FontAwesome } from "react-native-vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-import { FirestoreDB, FirebaseAuth } from "./../../Auth/FirebaseConfig";
-
 import {
-  addDoc,
-  collection,
-  doc,
-  serverTimestamp,
-  orderBy,
-  query,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-  Firestore,
-} from "firebase/firestore";
+  FirestoreDB,
+  FirebaseAuth,
+  FirebaseStorage,
+} from "./../../Auth/FirebaseConfig";
+import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 
+import { doc, onSnapshot, updateDoc, arrayUnion } from "firebase/firestore";
+import { pickImage } from "../../components/User";
 
 const ChatPage = ({ route }) => {
   const navigation = useNavigation();
@@ -54,6 +48,7 @@ const ChatPage = ({ route }) => {
   // Footer
   const [message, setMessage] = useState("");
   const [sendEnable, setSendEnable] = useState(false);
+  const [imageData, setImageData] = useState(null);
 
   const onchange = (value) => {
     setMessage(value);
@@ -63,7 +58,45 @@ const ChatPage = ({ route }) => {
     }
   };
 
+  const pick = async () => {
+    const data = await pickImage();
+    if (data) {
+      setImageData(data);
+      console.log("Image in chats : ", data);
+      setSendEnable(true);
+    }
+  };
+
+  const uploadChatImage = async () => {
+    let chatRoomID;
+    if (user < friend) {
+      chatRoomID = `${user}_${friend}`;
+    } else {
+      chatRoomID = `${friend}_${user}`;
+    }
+    const user = FirebaseAuth.currentUser.uid;
+    const name = `${Math.random().toString(26).substring(7)}`;
+    const response = await fetch(imageData);
+    const blob = await response.blob();
+    const storageRef = ref(FirebaseStorage, "ChatsImage" + chatRoomID + name);
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    uploadTask.on("state_changed", (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      Alert.alert("Uploading Image : " + progress + "% done");
+    });
+
+    const snapshot = await uploadTask;
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  };
+
   const sendMessage = async () => {
+    let imageURL = ""; // initialize imageURL as an empty string
+    if (imageData) {
+      // if there's an image to upload
+      imageURL = await uploadChatImage(); // upload the image and get the URL
+    }
     let chatRoomID;
     if (user < friend) {
       chatRoomID = `${user}_${friend}`;
@@ -71,9 +104,10 @@ const ChatPage = ({ route }) => {
       chatRoomID = `${friend}_${user}`;
     }
     const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
-    
+
     const newMessage = {
       text: message,
+      image: imageURL,
       sender: user,
       createdAt: new Date(),
     };
@@ -81,11 +115,12 @@ const ChatPage = ({ route }) => {
     await updateDoc(chatRoomRef, {
       Messages: arrayUnion(newMessage),
     });
-    
+
     setSendEnable(false);
     setMessage("");
+    setImageData(null);
   };
-  
+
   // Body
 
   const scrollViewRef = useRef();
@@ -93,10 +128,13 @@ const ChatPage = ({ route }) => {
     scrollViewRef.current.scrollToEnd({ animated: true });
   };
 
-  const UserMessageView = (message, time) => {
+  const UserMessageView = (message, time, key, image) => {
     return (
-      <View style={styles.userContainer}>
+      <View style={styles.userContainer} key={key}>
         <View style={styles.InneruserContainer}>
+          {image && (
+            <Image source={{ uri: image }} style={styles.imageinChat} />
+          )}
           <Text style={styles.message}>{message}</Text>
           <View style={styles.info}>
             <Text style={styles.time}>
@@ -120,19 +158,25 @@ const ChatPage = ({ route }) => {
       </View>
     );
   };
-  const OtherUserMessageView = (message, time) => {
+  const OtherUserMessageView = (message, time, key, image) => {
     return (
-      <View style={styles.otherUserContainer}>
+      <View style={styles.otherUserContainer} key={key}>
         <View style={styles.InnerOtherUserContainer}>
+          {image && (
+            <Image source={{ uri: image }} style={styles.imageinChat} />
+          )}
+
           <Text style={styles.message}>{message}</Text>
-          <Text style={styles.time}>
-            {time &&
-              new Date(parseInt(time) * 1000).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
-              })}
-          </Text>
+          <View style={styles.OtherUserTime}>
+            <Text style={styles.time}>
+              {time &&
+                new Date(parseInt(time) * 1000).toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: true,
+                })}
+            </Text>
+          </View>
         </View>
       </View>
     );
@@ -175,10 +219,7 @@ const ChatPage = ({ route }) => {
                 color="white"
                 onPress={() => navigation.goBack()}
               />
-              <Image
-                style={styles.profile}
-                source={{uri : data.profilePic}}
-              />
+              <Image style={styles.profile} source={{ uri: data.profilePic }} />
               <Text style={styles.title}>
                 {data.fullName.lenght > 10
                   ? `${data.fullName.slice(0, 10)}..`
@@ -215,15 +256,22 @@ const ChatPage = ({ route }) => {
           onContentSizeChange={scrollToBottom}
           onScroll={handleScroll}
         >
-
           {/* Messages to be render here */}
           {MessageData.map((message, index) => {
             if (message.sender === user) {
-              return UserMessageView(message.text, message.createdAt.seconds);
-            } if(message.sender === friend) {
+              return UserMessageView(
+                message.text,
+                message.createdAt.seconds,
+                index,
+                message.image
+              );
+            }
+            if (message.sender === friend) {
               return OtherUserMessageView(
                 message.text,
-                message.createdAt.seconds
+                message.createdAt.seconds,
+                index,
+                message.image
               );
             }
           })}
@@ -238,7 +286,6 @@ const ChatPage = ({ route }) => {
             />
           </View>
         )}
-
 
         {/* Footer */}
 
@@ -255,7 +302,9 @@ const ChatPage = ({ route }) => {
               />
             </View>
             <View style={styles.inputContainer}>
-              <Feather name="paperclip" size={20} color="black" />
+              <TouchableOpacity onPress={pick}>
+                <Feather name="paperclip" size={20} color="black" />
+              </TouchableOpacity>
               {!sendEnable && (
                 <>
                   <FontAwesome
@@ -287,7 +336,6 @@ const ChatPage = ({ route }) => {
             )}
           </View>
         </View>
-
       </ImageBackground>
     </>
   );
@@ -385,8 +433,8 @@ const styles = StyleSheet.create({
   InneruserContainer: {
     flexDirection: "column",
     backgroundColor: "#e5f5d6",
-    paddingHorizontal: 13,
-    paddingVertical: 3,
+    paddingTop: 10,
+    paddingHorizontal: 10,
     margin: 10,
     marginVertical: 5,
     borderRadius: 5,
@@ -395,10 +443,16 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 40,
     maxWidth: "60%",
   },
+  imageinChat: {
+    width: 180,
+    height: 180,
+    borderRadius: 30,
+  },
   InnerOtherUserContainer: {
     flexDirection: "column",
     backgroundColor: "#fff",
-    paddingHorizontal: 13,
+    paddingTop: 10,
+    paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 5,
     margin: 10,
@@ -410,10 +464,17 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 15,
+    marginLeft: 6,
+  },
+  OtherUserTime: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingRight: 10,
   },
   time: {
     fontSize: 11,
     color: "#808080",
+    marginBottom: 3,
   },
   info: {
     flexDirection: "row",
