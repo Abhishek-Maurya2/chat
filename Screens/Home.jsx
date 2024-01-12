@@ -5,6 +5,7 @@ import { Feather } from "@expo/vector-icons";
 
 import { FirebaseAuth, FirebaseStorage } from "../Auth/FirebaseConfig";
 import { ref, getDownloadURL } from "firebase/storage";
+import { pickImage } from "../components/User";
 
 const Home = ({ route }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -34,7 +35,9 @@ const Home = ({ route }) => {
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Alpha</Text>
         <View style={styles.iconContainer}>
-          <Feather name="camera" size={20} color="white" />
+          <Pressable onPress={pickImage}>
+            <Feather name="camera" size={20} color="white" />
+          </Pressable>
           <Feather name="search" size={20} color="white" />
           <Pressable onPress={Logout}>
             {imageUrl && (
@@ -68,8 +71,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 15,
     paddingBottom: 18,
-    paddingTop: 50,
     borderRadius: 15,
+    borderTopEndRadius: 0,
+    borderTopStartRadius: 0,
   },
   iconContainer: {
     flexDirection: "row",

@@ -37,7 +37,7 @@ const Login = () => {
   return (
     <View style={styles.container}>
       <TextInput placeholder="Username" style={styles.input} onChangeText={setEmail} />
-      <TextInput placeholder="Password" style={styles.input} onChangeText={setPass} />
+      <TextInput placeholder="Password" style={styles.input} onChangeText={setPass} secureTextEntry={true} />
       <TouchableOpacity style={styles.btn} onPress={handleLogin}>
         <Text>Login</Text>
       </TouchableOpacity>

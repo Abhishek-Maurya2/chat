@@ -58,6 +58,7 @@ const Signup = () => {
               };
               setDoc(doc(FirestoreDB, "users", userCred.user.uid), data)
                 .then(() => {
+                  console.log(data)
                   navigation.navigate("SplashScreen");
                 })
                 .catch((error) => {

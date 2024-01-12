@@ -4,7 +4,6 @@ import ProgresBar from "./ProgresBar";
 import { Feather } from "@expo/vector-icons";
 import { Video } from "expo-av";
 
-
 const FullModal = (props) => {
   const { isModalVisible, setIsModalVisible, item, setTimeUp } = props;
 
@@ -38,15 +37,18 @@ const FullModal = (props) => {
           </View>
           <Feather name="more-vertical" color={"white"} size={18} />
         </View>
-        <Image source={{uri : item.status}} style={styles.storyImg} />
-        {/* <Video
-          source={{ uri : item.status}}
-          style={styles.storyImg}
-          resizeMode="cover"
-          shouldPlay={true}
-          isLooping={true}
-          
-        /> */}
+        {item.statusType == "jpeg" && (
+          <Image source={{ uri: item.status }} style={styles.storyImg} />
+        )}
+        {item.statusType == "mp4" && (
+          <Video
+            source={{ uri: item.status }}
+            style={styles.storyImg}
+            resizeMode="cover"
+            shouldPlay={true}
+            isLooping={true}
+          />
+        )}
         <Text style={styles.storyMsg}>{item.storyMsg}</Text>
         <View style={styles.replySection}>
           <Feather
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 17,
-    color: 'white',
+    color: "white",
     marginLeft: 10,
   },
   topContainer: {
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
   },
   reply: {
     fontSize: 15,
-    color: 'white',
+    color: "white",
     textAlign: "center",
     marginBottom: 10,
   },

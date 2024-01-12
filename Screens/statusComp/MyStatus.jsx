@@ -12,6 +12,8 @@ import { doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, blob, uploadBytesResumable } from "firebase/storage";
 
 import { useUser, pickImage } from "../../components/User.jsx";
+
+
 const MyStatus = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,20 +27,6 @@ const MyStatus = () => {
   }, [usersData]);
 
   
-  // const pickImage = async () => {
-  //   // No permissions request is necessary for launching the image library
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     allowsEditing: true,
-  //     quality: 1,
-  //   });
-
-  //   if (!result.canceled) {
-  //     setStatus(result.assets[0].uri);
-  //     // console.log("Image: ", result.assets[0].uri);
-  //     uploadStatus();
-  //   }
-  // };
   const pick = async () => {
     const data = await pickImage();
     if(data) {
@@ -52,7 +40,7 @@ const MyStatus = () => {
 
   const uploadStatus = async () => {
     const user = FirebaseAuth.currentUser.uid;
-    const response = await fetch(status);
+    const response = await fetch(status.uri);
     const blob = await response.blob();
     const storageRef = ref(FirebaseStorage, "Status/" + user);
     const uploadTask = uploadBytesResumable(storageRef, blob);
@@ -60,13 +48,13 @@ const MyStatus = () => {
     uploadTask.on('state_changed', (snapshot) => {
       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       console.log('Upload is ' + progress + '% done');
-      Alert.alert("Upload is " + progress + "% done");
     });
 
     const snapshot = await uploadTask;
     const downloadURL = await getDownloadURL(snapshot.ref);
     const data = {
       status: downloadURL,
+      statusType: status.type,
     };
     await updateDoc(doc(FirestoreDB, "users", user), data);
   };

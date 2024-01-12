@@ -67,7 +67,6 @@ const AddChat = () => {
     }
     const ref = doc(FirestoreDB, "chatRooms", chatRoomID);
     await setDoc(ref, {
-      Messages: [],
       participants: [uid, friendID],
     });
     const friendRef = doc(FirestoreDB, "users", friendID);
@@ -190,8 +189,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#0e806a",
     padding: 10,
-    borderRadius: 15,
-    paddingTop: 50,
+    paddingTop: 0,
+    borderBottomEndRadius: 15,
+    borderBottomStartRadius: 15,
     paddingBottom: 15,
   },
   input: {
@@ -212,9 +212,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
-    paddingTop: 60,
+    paddingTop: 9,
     backgroundColor: "#0e806a",
-    borderRadius: 15,
+    borderBottomEndRadius: 15,
+    borderBottomStartRadius: 15,
     paddingBottom: 20,
   },
   left: {

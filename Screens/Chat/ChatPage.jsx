@@ -8,7 +8,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import wallpaper from "./../../assets/images/wall.jpg";
 
 import { Feather, FontAwesome } from "react-native-vector-icons";
@@ -21,8 +21,20 @@ import {
 } from "./../../Auth/FirebaseConfig";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 
-import { doc, onSnapshot, updateDoc, arrayUnion } from "firebase/firestore";
-import { pickImage } from "../../components/User";
+import {
+  doc,
+  onSnapshot,
+  orderBy,
+  arrayUnion,
+  setDoc,
+  addDoc,
+  serverTimestamp,
+  collection,
+  query,
+} from "firebase/firestore";
+import { pickCamera, pickImage } from "../../components/User";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Video } from "expo-av";
 
 const ChatPage = ({ route }) => {
   const navigation = useNavigation();
@@ -44,6 +56,12 @@ const ChatPage = ({ route }) => {
   const data = route.params.chatId;
   const friend = route.params.chatId._id;
   const user = FirebaseAuth.currentUser.uid;
+  let chatRoomID;
+  if (user < friend) {
+    chatRoomID = `${user}_${friend}`;
+  } else {
+    chatRoomID = `${friend}_${user}`;
+  }
 
   // Footer
   const [message, setMessage] = useState("");
@@ -67,23 +85,28 @@ const ChatPage = ({ route }) => {
     }
   };
 
-  const uploadChatImage = async () => {
-    let chatRoomID;
-    if (user < friend) {
-      chatRoomID = `${user}_${friend}`;
-    } else {
-      chatRoomID = `${friend}_${user}`;
+  const cameraPick = async () => {
+    const data = await pickCamera();
+    if (data) {
+      setImageData(data);
+      console.log("Image in chats : ", data);
+      setSendEnable(true);
     }
-    const user = FirebaseAuth.currentUser.uid;
-    const name = `${Math.random().toString(26).substring(7)}`;
-    const response = await fetch(imageData);
+  };
+
+  const uploadChatImage = async () => {
+    const name = `${Math.random().toString(36).substring(1)}`;
+    const response = await fetch(imageData.uri);
     const blob = await response.blob();
-    const storageRef = ref(FirebaseStorage, "ChatsImage" + chatRoomID + name);
+    const storageRef = ref(
+      FirebaseStorage,
+      `ChatsImages/${chatRoomID}/${name}/`
+    );
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
     uploadTask.on("state_changed", (snapshot) => {
       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      Alert.alert("Uploading Image : " + progress + "% done");
+      console.log("Uploading Image : " + progress + "% done");
     });
 
     const snapshot = await uploadTask;
@@ -103,18 +126,22 @@ const ChatPage = ({ route }) => {
     } else {
       chatRoomID = `${friend}_${user}`;
     }
-    const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
 
     const newMessage = {
       text: message,
       image: imageURL,
+      fileType: imageData ? imageData.type : "",
       sender: user,
       createdAt: new Date(),
     };
+    
+    // const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
+    const messageRef = collection(FirestoreDB, "chatRooms", chatRoomID, "Messages");
+    await addDoc(messageRef, newMessage);
 
-    await updateDoc(chatRoomRef, {
-      Messages: arrayUnion(newMessage),
-    });
+    // await updateDoc(chatRoomRef, {
+    //   Messages: arrayUnion(newMessage),
+    // });
 
     setSendEnable(false);
     setMessage("");
@@ -128,14 +155,24 @@ const ChatPage = ({ route }) => {
     scrollViewRef.current.scrollToEnd({ animated: true });
   };
 
-  const UserMessageView = (message, time, key, image) => {
+  const UserMessageView = (message, time, key, file, fileType) => {
     return (
       <View style={styles.userContainer} key={key}>
         <View style={styles.InneruserContainer}>
-          {image && (
-            <Image source={{ uri: image }} style={styles.imageinChat} />
+          {fileType === "jpeg" && (
+            <Image source={{ uri: file }} style={styles.imageinChat} />
           )}
-          <Text style={styles.message}>{message}</Text>
+          {fileType === "mp4" && (
+            <Video
+              style={styles.imageinChat}
+              source={{ uri: file }}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay={false}
+              useNativeControls={true}
+            />
+          )}
+          {message && <Text style={styles.message}>{message}</Text>}
           <View style={styles.info}>
             <Text style={styles.time}>
               <Text style={styles.time}>
@@ -158,15 +195,25 @@ const ChatPage = ({ route }) => {
       </View>
     );
   };
-  const OtherUserMessageView = (message, time, key, image) => {
+  const OtherUserMessageView = (message, time, key, file, fileType) => {
     return (
       <View style={styles.otherUserContainer} key={key}>
         <View style={styles.InnerOtherUserContainer}>
-          {image && (
-            <Image source={{ uri: image }} style={styles.imageinChat} />
+          {fileType === "jpeg" && (
+            <Image source={{ uri: file }} style={styles.imageinChat} />
+          )}
+          {fileType === "mp4" && (
+            <Video
+              style={styles.imageinChat}
+              source={{ uri: file }}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay={false}
+              useNativeControls={true}
+            />
           )}
 
-          <Text style={styles.message}>{message}</Text>
+          {message && <Text style={styles.message}>{message}</Text>}
           <View style={styles.OtherUserTime}>
             <Text style={styles.time}>
               {time &&
@@ -182,28 +229,37 @@ const ChatPage = ({ route }) => {
     );
   };
 
-  const [MessageData, setMessageData] = useState([]);
+  const [MessageData, setMessageData] = useState([]); //used cachedData instead of MessageData
+  // const [cachedData, setCachedData] = useState([]);
   useLayoutEffect(() => {
-    let chatRoomID;
-    if (user < friend) {
-      chatRoomID = `${user}_${friend}`;
-    } else {
-      chatRoomID = `${friend}_${user}`;
-    }
-    const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
+    // const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
 
-    const unsubscribe = onSnapshot(chatRoomRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data().Messages;
-        setMessageData(data);
-        // console.log("MessageData : ", data);
-      } else {
-        console.log("No such document!");
-      }
+    // const unsubscribe = onSnapshot(chatRoomRef, async (doc) => {
+    //   if (doc.exists()) {
+    //     const data = doc.data().Messages;
+    //     setMessageData(data);
+    //     // await AsyncStorage.setItem(chatRoomID, JSON.stringify(data));
+    //     console.log("MessageData : ", data);
+    //   } else {
+    //     console.log("No such document!");
+    //   }
+    //   // const cachedChats = await AsyncStorage.getItem(chatRoomID);
+    //   // setCachedData(cachedChats ? JSON.parse(cachedChats) : []);
+    // });
+    // return () => unsubscribe();
+
+    const messageRef = query(
+      collection(FirestoreDB, "chatRooms", chatRoomID, "Messages"),
+      orderBy("createdAt", "asc")
+    );
+    const unsubscribe = onSnapshot(messageRef, async (snapshot) => {
+      const data = snapshot.docs.map((doc) => doc.data());
+      setMessageData(data);
+      // console.log("MessageData : ", data);
     });
-
     return () => unsubscribe();
-  }, []);
+  }, [FirestoreDB, chatRoomID]);
+
   return (
     <>
       <ImageBackground source={wallpaper} style={styles.wall}>
@@ -263,15 +319,18 @@ const ChatPage = ({ route }) => {
                 message.text,
                 message.createdAt.seconds,
                 index,
-                message.image
+                message.image,
+                message.fileType
               );
             }
             if (message.sender === friend) {
+              // console.log("Message : ", message);
               return OtherUserMessageView(
                 message.text,
                 message.createdAt.seconds,
                 index,
-                message.image
+                message.image,
+                message.fileType
               );
             }
           })}
@@ -313,12 +372,14 @@ const ChatPage = ({ route }) => {
                     color="black"
                     style={styles.Bicons}
                   />
-                  <Feather
-                    name="camera"
-                    size={20}
-                    color="black"
-                    style={styles.Bicons}
-                  />
+                  <TouchableOpacity onPress={cameraPick}>
+                    <Feather
+                      name="camera"
+                      size={20}
+                      color="black"
+                      style={styles.Bicons}
+                    />
+                  </TouchableOpacity>
                 </>
               )}
             </View>
@@ -358,7 +419,10 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingTop: 50,
     backgroundColor: "#0e806a",
+    paddingTop: 10,
     borderRadius: 15,
+    borderTopEndRadius: 0,
+    borderTopStartRadius: 0,
   },
   left: {
     flexDirection: "row",
@@ -404,6 +468,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   Bright: {
     padding: 10,
@@ -446,17 +511,15 @@ const styles = StyleSheet.create({
   imageinChat: {
     width: 180,
     height: 180,
-    borderRadius: 30,
+    borderRadius: 35,
   },
   InnerOtherUserContainer: {
     flexDirection: "column",
     backgroundColor: "#fff",
-    paddingTop: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
     borderRadius: 5,
     margin: 10,
-    marginVertical: 5,
+    padding: 10,
+    paddingBottom: 0,
     borderTopRightRadius: 40,
     borderBottomRightRadius: 40,
     borderBottomLeftRadius: 40,
@@ -464,12 +527,11 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 15,
-    marginLeft: 6,
   },
   OtherUserTime: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingRight: 10,
+    justifyContent: "flex-start",
+    paddingLeft: 10,
   },
   time: {
     fontSize: 11,

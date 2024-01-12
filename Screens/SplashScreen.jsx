@@ -26,8 +26,6 @@ const SplashScreen = () => {
                 navigation.replace("Home", { user: userData });
                 }
               })
-              .then(() => {
-            });
         } else {
           navigation.replace("Login");
         }

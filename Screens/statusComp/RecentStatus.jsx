@@ -7,7 +7,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState, useLayoutEffect, useEffect } from "react";
 import FullModal from "./utils/FullModal";
 
 import { FirebaseAuth, FirestoreDB } from "../../Auth/FirebaseConfig";
@@ -46,22 +46,31 @@ const RecentStatus = () => {
   return (
     <View style={styles.container}>
       <ScrollView horizontal style={styles.recent}>
-        {status.map((item) => (
-          <Pressable key={item.id} onPress={() => handlePress(item)}>
-            <View style={styles.boxUi}>
-              <ImageBackground
-                source={{uri : item.status}}
-                blurRadius={10}
-                style={styles.backgroundImage}
-              >
-                <View style={styles.imgStory}>
-                  <Image source={{uri : item.profilePic}} style={styles.statusStyle} />
-                </View>
-                <Text style={styles.userName}>{item.fullName}</Text>
-              </ImageBackground>
-            </View>
-          </Pressable>
-        ))}
+        {status.map((item) => {
+          const imageSource =
+            item.statusType === "mp4"
+              ? { uri: item.profilePic }
+              : { uri: item.status };
+          return (
+            <Pressable key={item.id} onPress={() => handlePress(item)}>
+              <View style={styles.boxUi}>
+                <ImageBackground
+                  source={imageSource}
+                  blurRadius={10}
+                  style={styles.backgroundImage}
+                >
+                  <View style={styles.imgStory}>
+                    <Image
+                      source={{ uri: item.profilePic }}
+                      style={styles.statusStyle}
+                    />
+                  </View>
+                  <Text style={styles.userName}>{item.fullName}</Text>
+                </ImageBackground>
+              </View>
+            </Pressable>
+          );
+        })}
       </ScrollView>
       {isModalVisible && (
         <FullModal

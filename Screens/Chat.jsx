@@ -5,7 +5,17 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import { FirestoreDB, FirebaseAuth } from "../Auth/FirebaseConfig";
-import { collection, doc, getDocs, query, where, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+  limit,
+  getDoc,
+} from "firebase/firestore";
 
 const Chat = () => {
   const user = FirebaseAuth.currentUser;
@@ -22,11 +32,48 @@ const Chat = () => {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setChats(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
-    
+
     // console.log("Chats : ", chats);
     return () => unsubscribe();
   }, []);
 
+  const [lastMessage, setLastMessage] = useState(null);
+  const getLastMessage = async (chatId) => {
+    let chatRoomID;
+    if (user.uid < chatId) {
+      chatRoomID = `${user.uid}_${chatId}`;
+    } else {
+      chatRoomID = `${chatId}_${user.uid}`;
+    }
+
+    const q = query(
+      collection(FirestoreDB, "chatRooms", chatRoomID, "Messages"),
+      orderBy("createdAt", "desc"),
+      limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const lastMessage = querySnapshot.docs[0].data();
+      // console.log("last messages : ", lastMessage);
+      return lastMessage;
+    } else {
+      console.log("No messages in this chat room!");
+    }
+  };
+
+  useEffect(() => {
+    const fetchLastMessages = async () => {
+      const newLastMessages = {};
+      for (const chat of chats) {
+        const message = await getLastMessage(chat._id);
+        newLastMessages[chat._id] = message;
+      }
+      setLastMessage(newLastMessages);
+    };
+
+    fetchLastMessages();
+  }, [chats]);
   return (
     <View style={styles.container}>
       {chats.map((chat) => (
@@ -40,21 +87,18 @@ const Chat = () => {
               <View style={styles.title}>
                 <Text style={styles.name}>{chat.fullName}</Text>
                 <Text style={styles.time}>
-                  {/* {chat.LastMessageTime.seconds &&
-                    new Date(parseInt(chat.LastMessageTime.seconds) * 1000).toLocaleTimeString(
-                      "en-US",
-                      {
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true,
-                      }
-                    )} */}
-                    time
+                  {lastMessage[chat._id]?.createdAt
+                    ?.toDate()
+                    .toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  {/* time */}
                 </Text>
               </View>
               <View style={styles.message}>
                 <Text style={styles.lastMessage} numberOfLines={1}>
-                  last Message
+                  {lastMessage[chat._id]?.text}
                 </Text>
                 <Text style={styles.unread}>9</Text>
               </View>
@@ -101,7 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 6,
+    marginTop: 2,
   },
   name: {
     fontSize: 18,
@@ -117,6 +161,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   lastMessage: {
+    marginTop: 2,
     fontSize: 14,
     color: "#666",
     width: "90%",
