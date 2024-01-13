@@ -23,6 +23,7 @@ import {
   arrayUnion,
   setDoc,
 } from "firebase/firestore";
+import { Colors } from "../../components/Colors";
 
 const AddChat = () => {
   const navigation = useNavigation();
@@ -90,7 +91,7 @@ const AddChat = () => {
               style={styles.BackIcon}
               name="arrow-left"
               size={20}
-              color="white"
+              color="black"
               onPress={() => setShowSearch(false)}
             />
             <TextInput
@@ -140,7 +141,7 @@ const AddChat = () => {
               style={styles.BackIcon}
               name="arrow-left"
               size={20}
-              color="white"
+              color="black"
               onPress={() => navigation.goBack()}
             />
             <Text style={styles.title}>Add Chat</Text>
@@ -150,7 +151,7 @@ const AddChat = () => {
               style={styles.icon}
               name="search"
               size={20}
-              color="white"
+              color="black"
               onPress={OnSearch}
             />
             <Image
@@ -187,12 +188,12 @@ const styles = StyleSheet.create({
   searchbar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0e806a",
+    backgroundColor: Colors.background,
     padding: 10,
     paddingTop: 0,
     borderBottomEndRadius: 15,
     borderBottomStartRadius: 15,
-    paddingBottom: 15,
+    paddingBottom: 10,
   },
   input: {
     fontSize: 16,
@@ -200,11 +201,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     minWidth: "80%",
-    backgroundColor: "white",
+    backgroundColor: "#8ba28c26",
   },
   profile: {
-    height: 30,
-    width: 30,
+    height: 35,
+    width: 35,
     borderRadius: 25,
   },
   Headercontainer: {
@@ -213,10 +214,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     paddingTop: 9,
-    backgroundColor: "#0e806a",
+    backgroundColor: Colors.background,
     borderBottomEndRadius: 15,
     borderBottomStartRadius: 15,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   left: {
     flexDirection: "row",
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   title: {
-    color: "white",
+    color: "black",
     fontSize: 18,
     fontWeight: "600",
     marginLeft: 10,

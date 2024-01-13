@@ -24,7 +24,7 @@ const Navigation = () => {
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
               name={focused ? "message-text" : "message-text-outline"}
-              size={20}
+              size={24}
               color={color}
             />
           ),
@@ -37,9 +37,9 @@ const Navigation = () => {
         options={{
           tabBarIcon: ({ color, focused }) =>
             focused ? (
-              <MaterialCommunityIcons name="slack" size={23} color={color} />
+              <MaterialCommunityIcons name="slack" size={25} color={color} />
             ) : (
-              <Feather name="slack" size={21} color={color} />
+              <Feather name="slack" size={22} color={color} />
             ),
         }}
       />
@@ -70,7 +70,7 @@ const Navigation = () => {
           tabBarIcon: ({ color, focused }) =>
             // <Feather name={focused ? "phone-call" : "phone"} size={20} color={color} />
             focused ? (
-              <FontAwesome5 name="phone-alt" size={18} color={color} />
+              <FontAwesome5 name="phone-alt" size={19} color={color} />
             ) : (
               <Feather name="phone" size={20} color={color} />
             ),

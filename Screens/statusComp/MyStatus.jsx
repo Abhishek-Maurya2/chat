@@ -1,8 +1,7 @@
-import { View, Text, StyleSheet, Image, Pressable, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import React, { useState, useEffect } from "react";
 import Img from "./../../assets/images/1.png";
 import { Feather } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import {
   FirebaseStorage,
   FirestoreDB,

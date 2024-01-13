@@ -25,16 +25,14 @@ import {
   doc,
   onSnapshot,
   orderBy,
-  arrayUnion,
-  setDoc,
   addDoc,
-  serverTimestamp,
   collection,
   query,
 } from "firebase/firestore";
 import { pickCamera, pickImage } from "../../components/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Video } from "expo-av";
+import { Colors } from "../../components/Colors";
 
 const ChatPage = ({ route }) => {
   const navigation = useNavigation();
@@ -150,6 +148,12 @@ const ChatPage = ({ route }) => {
 
   // Body
 
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const handlePress = (item) => {
+    setSelectedItem(item);
+    setIsModalVisible(true);
+  };
   const scrollViewRef = useRef();
   const scrollToBottom = () => {
     scrollViewRef.current.scrollToEnd({ animated: true });
@@ -272,7 +276,7 @@ const ChatPage = ({ route }) => {
                 style={styles.BackIcon}
                 name="arrow-left"
                 size={20}
-                color="white"
+                color="black"
                 onPress={() => navigation.goBack()}
               />
               <Image style={styles.profile} source={{ uri: data.profilePic }} />
@@ -287,19 +291,19 @@ const ChatPage = ({ route }) => {
                 style={styles.icon}
                 name="video"
                 size={19}
-                color="white"
+                color="black"
               />
               <Feather
                 style={styles.icon}
                 name="phone"
                 size={19}
-                color="white"
+                color="black"
               />
               <Feather
                 style={styles.icon}
                 name="more-vertical"
                 size={20}
-                color="white"
+                color="black"
               />
             </View>
           </View>
@@ -392,6 +396,13 @@ const ChatPage = ({ route }) => {
           </View>
         </View>
       </ImageBackground>
+      {isModalVisible && (
+        <ViewModal
+          item={selectedItem}
+          isModalVisible={isModalVisible}
+          setIsModalVisible={setIsModalVisible}
+        />
+      )}
     </>
   );
 };
@@ -411,9 +422,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
-    paddingTop: 50,
-    backgroundColor: "#0e806a",
-    paddingTop: 10,
+    paddingTop: 5,
+    backgroundColor: Colors.background,
     borderRadius: 15,
     borderTopEndRadius: 0,
     borderTopStartRadius: 0,
@@ -433,7 +443,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   title: {
-    color: "white",
+    color: "black",
     fontSize: 18,
     fontWeight: "600",
     marginLeft: 10,

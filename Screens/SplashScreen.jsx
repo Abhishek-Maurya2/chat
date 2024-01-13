@@ -1,9 +1,8 @@
 import { View, StyleSheet } from 'react-native'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { doc, getDoc } from "firebase/firestore";
 import { FirebaseAuth, FirestoreDB } from "../Auth/FirebaseConfig";
-import { styleProps } from 'react-native-web/dist/cjs/modules/forwardedProps';
 import { ActivityIndicator } from "react-native-paper";
 import { Colors } from '../components/Colors';
 

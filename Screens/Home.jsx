@@ -33,7 +33,7 @@ const Home = ({ route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Alpha</Text>
+        <Text style={styles.headerText}>SuperApp</Text>
         <View style={styles.iconContainer}>
           <Pressable onPress={pickImage}>
             <Feather name="camera" size={20} color="black" />

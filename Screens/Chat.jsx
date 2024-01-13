@@ -8,15 +8,14 @@ import { useNavigation } from "@react-navigation/native";
 import { FirestoreDB, FirebaseAuth } from "../Auth/FirebaseConfig";
 import {
   collection,
-  doc,
   getDocs,
   query,
   where,
   onSnapshot,
   orderBy,
   limit,
-  getDoc,
 } from "firebase/firestore";
+import ViewModal from "../components/ViewModal";
 
 const Chat = () => {
   const user = FirebaseAuth.currentUser;
@@ -75,6 +74,14 @@ const Chat = () => {
 
     fetchLastMessages();
   }, [chats]);
+
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const handlePress = (item) => {
+    setSelectedItem(item);
+    setIsModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       {chats.map((chat) => (
@@ -83,7 +90,9 @@ const Chat = () => {
           onPress={() => navigation.navigate("ChatPage", { chatId: chat })}
         >
           <View style={styles.listItem}>
-            <Image source={{ uri: chat.profilePic }} style={styles.photos} />
+            <Pressable onPress={() => handlePress(chat)}>
+              <Image source={{ uri: chat.profilePic }} style={styles.photos} />
+            </Pressable>
             <View style={styles.metaData}>
               <View style={styles.title}>
                 <Text style={styles.name}>{chat.fullName}</Text>
@@ -112,8 +121,15 @@ const Chat = () => {
         style={styles.chatBtn}
         onPress={() => navigation.navigate("AddChat")}
       >
-        <MaterialIcons name="chat" size={24} color={Colors.onprimaryContainer} />
+        <MaterialIcons name="chat" size={24} color="#dcf8de" />
       </Pressable>
+      {isModalVisible && (
+        <ViewModal
+          item={selectedItem}
+          isModalVisible={isModalVisible}
+          setIsModalVisible={setIsModalVisible}
+        />
+      )}
     </View>
   );
 };
@@ -168,7 +184,7 @@ const styles = StyleSheet.create({
     width: "90%",
   },
   unread: {
-    backgroundColor: "#25D",
+    backgroundColor: Colors.primary,
     color: "#fff",
     fontSize: 12,
     borderRadius: 30,
