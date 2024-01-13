@@ -6,13 +6,10 @@ import Login from "./Auth/Login";
 import Signup from "./Auth/Signup";
 import Home from "./Screens/Home";
 import SplashScreen from "./Screens/SplashScreen";
-import {
-  MD3LightTheme as DefaultTheme,
-  PaperProvider,
-} from "react-native-paper";
 import AddChat from "./Screens/Chat/AddChat";
 import ChatPage from "./Screens/Chat/ChatPage";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { PaperProvider } from "react-native-paper";
 
 const Stack = createNativeStackNavigator();
 
@@ -65,6 +62,5 @@ const styles = StyleSheet.create({
   },
   safearea: {
     flex: 1,
-    backgroundColor: "#0e806a",
   },
 });

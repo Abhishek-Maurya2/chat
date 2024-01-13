@@ -1,10 +1,11 @@
-import { View, ActivityIndicator, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { doc, getDoc } from "firebase/firestore";
 import { FirebaseAuth, FirestoreDB } from "../Auth/FirebaseConfig";
 import { styleProps } from 'react-native-web/dist/cjs/modules/forwardedProps';
-
+import { ActivityIndicator } from "react-native-paper";
+import { Colors } from '../components/Colors';
 
 const SplashScreen = () => {
   const [User, setUser] = useState();
@@ -33,9 +34,9 @@ const SplashScreen = () => {
     };
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#0000ff" />
+      <ActivityIndicator animating={true} color={Colors.primary} size={40} />
     </View>
-  )
+  );
 }
 
 export default SplashScreen;

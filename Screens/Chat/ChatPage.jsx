@@ -366,12 +366,6 @@ const ChatPage = ({ route }) => {
               </TouchableOpacity>
               {!sendEnable && (
                 <>
-                  <FontAwesome
-                    name="rupee"
-                    size={20}
-                    color="black"
-                    style={styles.Bicons}
-                  />
                   <TouchableOpacity onPress={cameraPick}>
                     <Feather
                       name="camera"

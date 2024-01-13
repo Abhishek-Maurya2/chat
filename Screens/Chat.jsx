@@ -1,6 +1,7 @@
 import { Text, View, StyleSheet, Image, Pressable } from "react-native";
 import React, { useState, useEffect } from "react";
 
+import { Colors } from "../components/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
@@ -111,7 +112,7 @@ const Chat = () => {
         style={styles.chatBtn}
         onPress={() => navigation.navigate("AddChat")}
       >
-        <MaterialIcons name="chat" size={24} color="#fff" />
+        <MaterialIcons name="chat" size={24} color={Colors.onprimaryContainer} />
       </Pressable>
     </View>
   );
@@ -180,10 +181,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 11,
     right: 11,
-    backgroundColor: "#128C7E",
+    backgroundColor: Colors.primaryContainer,
     width: 52,
     height: 52,
-    borderRadius: 15,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
   },

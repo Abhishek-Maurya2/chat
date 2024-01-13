@@ -4,8 +4,8 @@ import Navigation from "../components/navigation";
 import { Feather } from "@expo/vector-icons";
 
 import { FirebaseAuth, FirebaseStorage } from "../Auth/FirebaseConfig";
-import { ref, getDownloadURL } from "firebase/storage";
 import { pickImage } from "../components/User";
+import { Colors } from "../components/Colors";
 
 const Home = ({ route }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -36,9 +36,9 @@ const Home = ({ route }) => {
         <Text style={styles.headerText}>Alpha</Text>
         <View style={styles.iconContainer}>
           <Pressable onPress={pickImage}>
-            <Feather name="camera" size={20} color="white" />
+            <Feather name="camera" size={20} color="black" />
           </Pressable>
-          <Feather name="search" size={20} color="white" />
+          <Feather name="search" size={20} color="black" />
           <Pressable onPress={Logout}>
             {imageUrl && (
               <Image
@@ -65,15 +65,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   headerContainer: {
-    backgroundColor: "#0e806a",
+    backgroundColor: "white",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 15,
-    paddingBottom: 18,
+    paddingBottom: 10,
+    paddingTop: 8,
     borderRadius: 15,
     borderTopEndRadius: 0,
     borderTopStartRadius: 0,
+    elevation: 5,
   },
   iconContainer: {
     flexDirection: "row",
@@ -84,6 +86,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 25,
     fontWeight: "600",
-    color: "white",
+    color: "black",
   },
 });

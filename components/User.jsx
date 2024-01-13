@@ -11,6 +11,7 @@ export const useUser = () => {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
+    const user = FirebaseAuth.currentUser;
     const getUserData = async () => {
       const docRef = doc(FirestoreDB, "users", user.uid);
       const docSnap = await getDoc(docRef);

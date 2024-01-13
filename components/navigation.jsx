@@ -6,15 +6,16 @@ import Calls from "../Screens/Calls";
 import { MaterialCommunityIcons, Feather } from "react-native-vector-icons";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { FontAwesome5 } from "@expo/vector-icons";
-
+import { Colors } from "./Colors";
 const Tab = createMaterialBottomTabNavigator();
 
 const Navigation = () => {
   return (
     <Tab.Navigator
       initialRouteName="Chat"
-      activeColor="#0e806a"
-      barStyle={{ backgroundColor: "white" }}
+      activeColor={Colors.onSecondaryContainer}
+      barStyle={{ backgroundColor: Colors.background }}
+      activeIndicatorStyle={{ backgroundColor: Colors.secondaryContainer }}
     >
       <Tab.Screen
         name="Chat"
