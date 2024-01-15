@@ -1,6 +1,6 @@
 import { getApps, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { initializeAuth, getReactNativePersistence, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { initializeAuth, getReactNativePersistence, setPersistence, browserLocalPersistence, getAuth } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getStorage } from "firebase/storage";
 import { Platform } from "react-native";
@@ -19,16 +19,28 @@ const App = getApps.length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 let FirebaseAuth;
 //if web and android
-if(Platform.OS === 'android'){
+if (Platform.OS === "web") {
+  FirebaseAuth = getAuth(App);
+  setPersistence(FirebaseAuth, browserLocalPersistence)
+    .then(() => {
+      onAuthStateChanged(FirebaseAuth, (user) => {
+        if (user) {
+          // User is signed in
+        } else {
+          // User is signed out
+        }
+      });
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      console.log(error.code);
+      console.log(error.message);
+    });
+} else if (Platform.OS === "android") {
   FirebaseAuth = initializeAuth(App, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage),
   });
 }
-else{
-  FirebaseAuth = initializeAuth(App);
-  setPersistence(FirebaseAuth, browserLocalPersistence);
-}
-
 const FirestoreDB = getFirestore(App);
 
 const FirebaseStorage = getStorage(App);

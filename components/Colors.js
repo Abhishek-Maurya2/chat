@@ -1,7 +1,7 @@
 export const Colors = {
-  primary: "#1aae68",
+  primary: "#12a574",
   onprimary: "#ffffff",
-  primaryContainer: "#23d176",
+  primaryContainer: "#12a574",
   onprimaryContainer: "#08381f",
   secondary: "#4e6356",
   onSecondary: "#ffffff",
@@ -20,4 +20,5 @@ export const Colors = {
   surface: "#fbfdf8",
   onSurface: "#191c1a",
   outline: "#707972",
+  backgroundColor: "#f0f1eb",
 };

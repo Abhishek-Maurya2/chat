@@ -58,24 +58,25 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  btn: {
-    backgroundColor: "lightblue",
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: Colors.backgroundColor,
   },
   headerContainer: {
-    backgroundColor: "white",
+    backgroundColor: Colors.background,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 15,
-    paddingBottom: 10,
-    paddingTop: 8,
-    borderRadius: 15,
+    paddingTop: 4,
+    paddingBottom: 12,
     borderTopEndRadius: 0,
     borderTopStartRadius: 0,
-    elevation: 5,
+    borderBottomEndRadius: 15,
+    borderBottomStartRadius: 15,
+    borderColor: "#b8bab89f",
+    borderBottomWidth: 0.6,
+    borderLeftWidth: 0.6,
+    borderRightWidth: 0.6,
+
   },
   iconContainer: {
     flexDirection: "row",

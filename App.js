@@ -8,6 +8,8 @@ import Home from "./Screens/Home";
 import SplashScreen from "./Screens/SplashScreen";
 import AddChat from "./Screens/Chat/AddChat";
 import ChatPage from "./Screens/Chat/ChatPage";
+import Profile from "./Screens/Chat/Profile";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PaperProvider } from "react-native-paper";
 
@@ -47,6 +49,11 @@ export default function App() {
             <Stack.Screen
               name="ChatPage"
               component={ChatPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Profile"
+              component={Profile}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

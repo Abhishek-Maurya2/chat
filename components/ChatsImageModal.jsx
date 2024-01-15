@@ -23,7 +23,7 @@ import Animated, {
 
 const { width } = Dimensions.get("window");
 
-const ViewModal = (props) => {
+const ChatsImageModal = (props) => {
   const scale = useSharedValue(1);
 
   const pinchHandler = useAnimatedGestureHandler({
@@ -74,7 +74,23 @@ const ViewModal = (props) => {
                     }
                     style={{ marginRight: 10 }}
                   />
-                  <Text style={styles.username}>{item.fullName}</Text>
+                  <View style={styles.infoContainer}>
+                    <View>
+                      <Text style={styles.username}>{item.name}</Text>
+                    </View>
+                    <View>
+                      <Text style={{ color: "white", fontSize: 12 }}>
+                        {item.time &&
+                          new Date(
+                            parseInt(item.time) * 1000
+                          ).toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "numeric",
+                            hour12: true,
+                          })}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
                 <View style={styles.actionSection}>
                   <Feather name="more-vertical" size={20} color={"white"} />
@@ -87,7 +103,7 @@ const ViewModal = (props) => {
               <PinchGestureHandler onGestureEvent={pinchHandler}>
                 <Animated.View style={rStyle}>
                   <Image
-                    source={{ uri: item.profilePic }}
+                    source={{ uri: item.image }}
                     style={styles.img}
                     resizeMode="contain"
                   />
@@ -95,6 +111,23 @@ const ViewModal = (props) => {
               </PinchGestureHandler>
             </View>
           </GestureHandlerRootView>
+          {isFocus && (
+            <View style={styles.bottom}>
+              <View style={styles.bottomContainer}>
+                <View style={styles.bottomSection}>
+                  <Feather name="message-circle" size={22} color={"white"} />
+                  <Text style={{ color: "white", marginLeft: 10 }}>Reply</Text>
+                </View>
+                <View style={styles.bottomSection}>
+                  <Text style={{ color: "white" }}>{item.message}</Text>
+                </View>
+                <View style={styles.bottomSection}>
+                  <Feather name="share" size={22} color={"white"} />
+                  <Text style={{ color: "white", marginLeft: 10 }}>Share</Text>
+                </View>
+              </View>
+            </View>
+          )}
         </Pressable>
       </View>
     </Modal>
@@ -125,22 +158,54 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   profileSection: {
     flexDirection: "row",
     alignItems: "center",
   },
+  infoContainer: {
+    flexDirection: "column",
+    justifyContent: "flex-start",
+  },
   username: {
     color: "white",
     fontSize: 20,
     fontWeight: "bold",
-    marginLeft: 10,
   },
   img: {
     width: width,
     height: width,
   },
+  imgContainer: {
+    width: width,
+    height: width,
+  },
+  bottom: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    width: "100%",
+    backgroundColor: "#1f1f1fcc",
+    borderTopEndRadius: 20,
+    borderTopStartRadius: 20,
+  },
+  bottomContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 15,
+    marginVertical: 18,
+    marginTop: 15,
+  },
+  bottomSection: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  actionSection: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 });
 
-export default ViewModal;
+export default ChatsImageModal;

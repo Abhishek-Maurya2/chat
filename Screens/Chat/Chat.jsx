@@ -1,11 +1,11 @@
 import { Text, View, StyleSheet, Image, Pressable } from "react-native";
 import React, { useState, useEffect } from "react";
 
-import { Colors } from "../components/Colors";
+import { Colors } from "../../components/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-import { FirestoreDB, FirebaseAuth } from "../Auth/FirebaseConfig";
+import { FirestoreDB, FirebaseAuth } from "../../Auth/FirebaseConfig";
 import {
   collection,
   getDocs,
@@ -15,7 +15,7 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-import ViewModal from "../components/ViewModal";
+import ViewModal from "../../components/ViewModal";
 
 const Chat = () => {
   const user = FirebaseAuth.currentUser;
@@ -121,7 +121,7 @@ const Chat = () => {
         style={styles.chatBtn}
         onPress={() => navigation.navigate("AddChat")}
       >
-        <MaterialIcons name="chat" size={24} color="#dcf8de" />
+        <MaterialIcons name="chat" size={24} color={Colors.background} />
       </Pressable>
       {isModalVisible && (
         <ViewModal
@@ -137,12 +137,13 @@ export default Chat;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20,
+    backgroundColor: Colors.backgroundColor,
   },
   listItem: {
     flexDirection: "row",
     marginLeft: 10,
     marginRight: 10,
+    margin: 10,
   },
   photos: {
     width: 45,
@@ -153,10 +154,7 @@ const styles = StyleSheet.create({
   },
   metaData: {
     flex: 5,
-    borderBottomWidth: 0,
     marginLeft: 10,
-    marginBottom: 10,
-    paddingBottom: 10,
   },
   title: {
     flexDirection: "row",

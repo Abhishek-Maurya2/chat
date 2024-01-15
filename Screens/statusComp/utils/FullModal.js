@@ -26,7 +26,7 @@ const FullModal = (props) => {
               size={24}
               color={"white"}
               onPress={() =>
-                setIsModalVisible((prev) => ({ ...prev, [item.id]: false }))
+                setIsModalVisible((prev) => {return !prev})
               }
             />
             <Image

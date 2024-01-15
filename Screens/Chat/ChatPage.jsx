@@ -7,6 +7,7 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import wallpaper from "./../../assets/images/wall.jpg";
@@ -33,6 +34,7 @@ import { pickCamera, pickImage } from "../../components/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Video } from "expo-av";
 import { Colors } from "../../components/Colors";
+import ChatsImageModal from "../../components/ChatsImageModal";
 
 const ChatPage = ({ route }) => {
   const navigation = useNavigation();
@@ -132,9 +134,14 @@ const ChatPage = ({ route }) => {
       sender: user,
       createdAt: new Date(),
     };
-    
+
     // const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
-    const messageRef = collection(FirestoreDB, "chatRooms", chatRoomID, "Messages");
+    const messageRef = collection(
+      FirestoreDB,
+      "chatRooms",
+      chatRoomID,
+      "Messages"
+    );
     await addDoc(messageRef, newMessage);
 
     // await updateDoc(chatRoomRef, {
@@ -150,7 +157,8 @@ const ChatPage = ({ route }) => {
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const handlePress = (item) => {
+  const handlePress = (image, name, time, message) => {
+    const item = { image, name, time, message };
     setSelectedItem(item);
     setIsModalVisible(true);
   };
@@ -159,12 +167,14 @@ const ChatPage = ({ route }) => {
     scrollViewRef.current.scrollToEnd({ animated: true });
   };
 
-  const UserMessageView = (message, time, key, file, fileType) => {
+  const UserMessageView = (message, time, key, file, fileType, name) => {
     return (
       <View style={styles.userContainer} key={key}>
         <View style={styles.InneruserContainer}>
           {fileType === "jpeg" && (
-            <Image source={{ uri: file }} style={styles.imageinChat} />
+            <Pressable onPress={() => handlePress(file, name, time, message)}>
+              <Image source={{ uri: file }} style={styles.imageinChat} />
+            </Pressable>
           )}
           {fileType === "mp4" && (
             <Video
@@ -199,12 +209,14 @@ const ChatPage = ({ route }) => {
       </View>
     );
   };
-  const OtherUserMessageView = (message, time, key, file, fileType) => {
+  const OtherUserMessageView = (message, time, key, file, fileType, name) => {
     return (
       <View style={styles.otherUserContainer} key={key}>
         <View style={styles.InnerOtherUserContainer}>
           {fileType === "jpeg" && (
-            <Image source={{ uri: file }} style={styles.imageinChat} />
+            <Pressable onPress={() => handlePress(file, name, time, message)}>
+              <Image source={{ uri: file }} style={styles.imageinChat} />
+            </Pressable>
           )}
           {fileType === "mp4" && (
             <Video
@@ -233,25 +245,8 @@ const ChatPage = ({ route }) => {
     );
   };
 
-  const [MessageData, setMessageData] = useState([]); //used cachedData instead of MessageData
-  // const [cachedData, setCachedData] = useState([]);
+  const [MessageData, setMessageData] = useState([]);
   useLayoutEffect(() => {
-    // const chatRoomRef = doc(FirestoreDB, "chatRooms", chatRoomID);
-
-    // const unsubscribe = onSnapshot(chatRoomRef, async (doc) => {
-    //   if (doc.exists()) {
-    //     const data = doc.data().Messages;
-    //     setMessageData(data);
-    //     // await AsyncStorage.setItem(chatRoomID, JSON.stringify(data));
-    //     console.log("MessageData : ", data);
-    //   } else {
-    //     console.log("No such document!");
-    //   }
-    //   // const cachedChats = await AsyncStorage.getItem(chatRoomID);
-    //   // setCachedData(cachedChats ? JSON.parse(cachedChats) : []);
-    // });
-    // return () => unsubscribe();
-
     const messageRef = query(
       collection(FirestoreDB, "chatRooms", chatRoomID, "Messages"),
       orderBy("createdAt", "asc")
@@ -271,7 +266,12 @@ const ChatPage = ({ route }) => {
 
         <View style={styles.container}>
           <View style={styles.Headercontainer}>
-            <View style={styles.left}>
+            <Pressable
+              style={styles.left}
+              onPress={() => {
+                navigation.navigate("Profile", { chatId: data });
+              }}
+            >
               <Feather
                 style={styles.BackIcon}
                 name="arrow-left"
@@ -285,22 +285,21 @@ const ChatPage = ({ route }) => {
                   ? `${data.fullName.slice(0, 10)}..`
                   : data.fullName}
               </Text>
-            </View>
+            </Pressable>
             <View style={styles.right}>
               <Feather
-                style={styles.icon}
                 name="video"
-                size={19}
+                size={20}
                 color="black"
               />
               <Feather
-                style={styles.icon}
+                style={{ paddingLeft: 30 }}
                 name="phone"
-                size={19}
+                size={20}
                 color="black"
               />
               <Feather
-                style={styles.icon}
+                style={{ paddingLeft: 20 }}
                 name="more-vertical"
                 size={20}
                 color="black"
@@ -324,7 +323,8 @@ const ChatPage = ({ route }) => {
                 message.createdAt.seconds,
                 index,
                 message.image,
-                message.fileType
+                message.fileType,
+                data.fullName
               );
             }
             if (message.sender === friend) {
@@ -334,7 +334,8 @@ const ChatPage = ({ route }) => {
                 message.createdAt.seconds,
                 index,
                 message.image,
-                message.fileType
+                message.fileType,
+                data.fullName
               );
             }
           })}
@@ -397,7 +398,7 @@ const ChatPage = ({ route }) => {
         </View>
       </ImageBackground>
       {isModalVisible && (
-        <ViewModal
+        <ChatsImageModal
           item={selectedItem}
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}
@@ -421,12 +422,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 10,
     paddingTop: 5,
+    paddingBottom: 10,
+    paddingHorizontal: 10,
     backgroundColor: Colors.background,
     borderRadius: 15,
     borderTopEndRadius: 0,
     borderTopStartRadius: 0,
+    borderBottomEndRadius: 15,
+    borderBottomStartRadius: 15,
+    borderColor: "#b8bab89f",
+    borderBottomWidth: 0.6,
+    borderLeftWidth: 0.6,
+    borderRightWidth: 0.6,
   },
   left: {
     flexDirection: "row",
@@ -435,9 +443,6 @@ const styles = StyleSheet.create({
   right: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  icon: {
-    paddingHorizontal: 12,
   },
   BackIcon: {
     paddingRight: 10,

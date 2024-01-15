@@ -1,6 +1,6 @@
 import React from "react";
-import Chat from "../Screens/Chat";
-import Status from "../Screens/Status";
+import Chat from "../Screens/Chat/Chat";
+import Status from "../Screens/statusComp/Status";
 import Community from "../Screens/Community";
 import Calls from "../Screens/Calls";
 import { MaterialCommunityIcons, Feather } from "react-native-vector-icons";
