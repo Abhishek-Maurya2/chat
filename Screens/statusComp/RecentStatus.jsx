@@ -56,7 +56,7 @@ const RecentStatus = () => {
               <View style={styles.boxUi}>
                 <ImageBackground
                   source={imageSource}
-                  blurRadius={10}
+                  blurRadius={15}
                   style={styles.backgroundImage}
                 >
                   <View style={styles.imgStory}>
@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
   },
   boxUi: {
     margin: 8,
-    borderColor: "#777",
-    borderWidth: 1,
+    borderColor: "#777777c8",
+    borderWidth: 0.5,
     borderRadius: 10,
     width: 100,
     height: 150,

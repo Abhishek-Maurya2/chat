@@ -73,6 +73,7 @@ const AddChat = () => {
     const friendRef = doc(FirestoreDB, "users", friendID);
     await updateDoc(friendRef, {
       participants: arrayUnion(uid),
+      
     });
     const userRef = doc(FirestoreDB, "users", uid);
     await updateDoc(userRef, {

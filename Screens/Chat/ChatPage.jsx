@@ -35,6 +35,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Video } from "expo-av";
 import { Colors } from "../../components/Colors";
 import ChatsImageModal from "../../components/ChatsImageModal";
+import { ActivityIndicator } from "react-native-paper";
 
 const ChatPage = ({ route }) => {
   const navigation = useNavigation();
@@ -64,6 +65,7 @@ const ChatPage = ({ route }) => {
   }
 
   // Footer
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [sendEnable, setSendEnable] = useState(false);
   const [imageData, setImageData] = useState(null);
@@ -115,6 +117,7 @@ const ChatPage = ({ route }) => {
   };
 
   const sendMessage = async () => {
+    setLoading(true);
     let imageURL = ""; // initialize imageURL as an empty string
     if (imageData) {
       // if there's an image to upload
@@ -148,6 +151,7 @@ const ChatPage = ({ route }) => {
     //   Messages: arrayUnion(newMessage),
     // });
 
+    setLoading(false);
     setSendEnable(false);
     setMessage("");
     setImageData(null);
@@ -390,7 +394,7 @@ const ChatPage = ({ route }) => {
               </View>
             </View>
             <View style={styles.Bright}>
-              {sendEnable ? (
+              {loading ? <ActivityIndicator size="small" color="white" /> : sendEnable ? (
                 <Feather
                   name="send"
                   size={20}
@@ -466,9 +470,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopEndRadius: 25,
     borderTopStartRadius: 25,
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
   },
   privewPane: {
     alignItems: "center",

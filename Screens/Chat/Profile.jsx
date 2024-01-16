@@ -8,8 +8,8 @@ import { Feather } from "@expo/vector-icons";
 import { Follow, UnFollow } from "../../components/Functionality";
 import { FirebaseAuth } from "../../Auth/FirebaseConfig";
 
-let CurrentUser = FirebaseAuth.currentUser.uid;
 const Profile = ({ route }) => {
+  let CurrentUser = FirebaseAuth.currentUser.uid;
   const data = route.params.chatId;
   const navigation = useNavigation();
 
@@ -18,7 +18,7 @@ const Profile = ({ route }) => {
     if (data.Followers.includes(CurrentUser)) {
       setFollowings(true);
     }
-  }, []);
+  }, [followings]);
 
   const handleFollow = async (data) => {
     const x = followings ? await UnFollow(data) : await Follow(data);

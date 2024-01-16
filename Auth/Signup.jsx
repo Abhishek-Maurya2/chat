@@ -55,6 +55,8 @@ const Signup = () => {
                 PhoneNumber: PhoneNumber,
                 profilePic: downloadURL,
                 providerData: userCred.user.providerData[0],
+                Followers: [],
+                Following: [],
               };
               setDoc(doc(FirestoreDB, "users", userCred.user.uid), data)
                 .then(() => {
