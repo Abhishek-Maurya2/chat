@@ -12,7 +12,7 @@ const Tab = createMaterialBottomTabNavigator();
 const Navigation = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Chat"
+      initialRouteName="Feed"
       activeColor={Colors.onSecondaryContainer}
       barStyle={{ backgroundColor: Colors.background }}
       activeIndicatorStyle={{ backgroundColor: Colors.secondaryContainer }}
@@ -44,7 +44,7 @@ const Navigation = () => {
         }}
       />
       <Tab.Screen
-        name="Community"
+        name="Feed"
         component={Community}
         options={{
           tabBarIcon: ({ color, focused }) =>

@@ -1,14 +1,30 @@
 import { View, Text, StyleSheet, Pressable, Image } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Avatar, Button, IconButton } from "react-native-paper";
 import { Colors } from "../../components/Colors";
 import ViewModal from "../../components/ViewModal";
 import { Feather } from "@expo/vector-icons";
+import { Follow, UnFollow } from "../../components/Functionality";
+import { FirebaseAuth } from "../../Auth/FirebaseConfig";
 
+let CurrentUser = FirebaseAuth.currentUser.uid;
 const Profile = ({ route }) => {
   const data = route.params.chatId;
   const navigation = useNavigation();
+
+  const [followings, setFollowings] = useState(false);
+  useEffect(() => {
+    if (data.Followers.includes(CurrentUser)) {
+      setFollowings(true);
+    }
+  }, []);
+
+  const handleFollow = async (data) => {
+    const x = followings ? await UnFollow(data) : await Follow(data);
+    // console.log(x);
+    setFollowings(x);
+  };
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -41,7 +57,7 @@ const Profile = ({ route }) => {
       android_ripple={{ color: "#808080a1" }}
     >
       <Feather name={icon} size={size} color={color} />
-      <Text style={{marginTop: 5}}>{label}</Text>
+      <Text style={{ marginTop: 5 }}>{label}</Text>
     </Pressable>
   );
   return (
@@ -75,15 +91,43 @@ const Profile = ({ route }) => {
               </Text>
             </View>
             <View style={styles.followSection}>
-              <Button
-                mode="contained"
-                icon="plus"
-                onPress={() => console.log("Follow Button Pressed")}
-                buttonColor={Colors.primaryContainer}
-                style={{ width: 88 }}
-              >
-                Follow
-              </Button>
+              {followings ? (
+                <Pressable
+                  onPress={() => handleFollow(data)}
+                  android_ripple={{ color: "#808080a1" }}
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderWidth: 0.3,
+                    borderColor: "#808080a6",
+                    borderRadius: 20,
+                    flexDirection: "row",
+                    padding: 10,
+                  }}
+                >
+                  <Feather name="user-check" size={20} color="black" />
+                  <Text style={{ marginLeft: 5 }}>Following</Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={() => handleFollow(data)}
+                  android_ripple={{ color: "#808080a1" }}
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderWidth: 0.3,
+                    borderColor: "#808080a6",
+                    borderRadius: 20,
+                    flexDirection: "row",
+                    paddingHorizontal: 14,
+                    paddingVertical: 10,
+                    backgroundColor: Colors.primary,
+                  }}
+                >
+                  <Feather name="user-plus" size={20} color="white" />
+                  <Text style={{ marginLeft: 8, color: "white" }}>Follow</Text>
+                </Pressable>
+              )}
             </View>
           </View>
           <View style={styles.optionsSection}>
@@ -170,7 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-evenly",
-},
+  },
   bioSection: {
     backgroundColor: Colors.background,
     marginTop: 10,

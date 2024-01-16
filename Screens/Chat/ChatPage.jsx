@@ -287,11 +287,7 @@ const ChatPage = ({ route }) => {
               </Text>
             </Pressable>
             <View style={styles.right}>
-              <Feather
-                name="video"
-                size={20}
-                color="black"
-              />
+              <Feather name="video" size={20} color="black" />
               <Feather
                 style={{ paddingLeft: 30 }}
                 name="phone"
@@ -353,47 +349,58 @@ const ChatPage = ({ route }) => {
 
         {/* Footer */}
 
-        <View style={styles.Bcontainer}>
-          <View style={styles.Bleft}>
-            <View style={styles.inputContainer}>
-              <Feather name="smile" size={20} color="black" />
-              <TextInput
-                placeholder="Message"
-                multiline={true}
-                style={styles.txtInput}
-                onChangeText={(value) => onchange(value)}
-                value={message}
+        <View style={styles.Footer}>
+          <View style={styles.privewPane}>
+            {imageData && (
+              <Image
+                source={{ uri: imageData.uri }}
+                style={styles.privewImage}
+                resizeMode="contain"
               />
+            )}
+          </View>
+          <View style={styles.Bcontainer}>
+            <View style={styles.Bleft}>
+              <View style={styles.inputContainer}>
+                <Feather name="smile" size={20} color="black" />
+                <TextInput
+                  placeholder="Message"
+                  multiline={true}
+                  style={styles.txtInput}
+                  onChangeText={(value) => onchange(value)}
+                  value={message}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <TouchableOpacity onPress={pick}>
+                  <Feather name="paperclip" size={20} color="black" />
+                </TouchableOpacity>
+                {!sendEnable && (
+                  <>
+                    <TouchableOpacity onPress={cameraPick}>
+                      <Feather
+                        name="camera"
+                        size={20}
+                        color="black"
+                        style={styles.Bicons}
+                      />
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
             </View>
-            <View style={styles.inputContainer}>
-              <TouchableOpacity onPress={pick}>
-                <Feather name="paperclip" size={20} color="black" />
-              </TouchableOpacity>
-              {!sendEnable && (
-                <>
-                  <TouchableOpacity onPress={cameraPick}>
-                    <Feather
-                      name="camera"
-                      size={20}
-                      color="black"
-                      style={styles.Bicons}
-                    />
-                  </TouchableOpacity>
-                </>
+            <View style={styles.Bright}>
+              {sendEnable ? (
+                <Feather
+                  name="send"
+                  size={20}
+                  color="white"
+                  onPress={sendMessage}
+                />
+              ) : (
+                <Feather name="mic" size={20} color="white" />
               )}
             </View>
-          </View>
-          <View style={styles.Bright}>
-            {sendEnable ? (
-              <Feather
-                name="send"
-                size={20}
-                color="white"
-                onPress={sendMessage}
-              />
-            ) : (
-              <Feather name="mic" size={20} color="white" />
-            )}
           </View>
         </View>
       </ImageBackground>
@@ -455,15 +462,28 @@ const styles = StyleSheet.create({
   },
 
   // Footer
-  Bcontainer: {
+  Footer: {
     backgroundColor: "white",
-    paddingVertical: 6,
+    borderTopEndRadius: 25,
+    borderTopStartRadius: 25,
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+  },
+  privewPane: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  privewImage: {
+    width: "100%",
+    height: 400,
+  },
+  Bcontainer: {
+    paddingVertical: 10,
     paddingHorizontal: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderTopEndRadius: 25,
-    borderTopStartRadius: 25,
   },
   Bleft: {
     flexDirection: "row",
