@@ -6,23 +6,42 @@ import { Colors } from "../../components/Colors";
 import ViewModal from "../../components/ViewModal";
 import { Feather } from "@expo/vector-icons";
 import { Follow, UnFollow } from "../../components/Functionality";
-import { FirebaseAuth } from "../../Auth/FirebaseConfig";
+import { FirebaseAuth, FirestoreDB } from "../../Auth/FirebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
 const Profile = ({ route }) => {
   let CurrentUser = FirebaseAuth.currentUser.uid;
   const data = route.params.chatId;
   const navigation = useNavigation();
 
+
+
+
   const [followings, setFollowings] = useState(false);
-  useEffect(() => {
-    if (data.Followers.includes(CurrentUser)) {
-      setFollowings(true);
+
+ useEffect(() => {
+  const checkFollow = async() => {
+    const ref = doc(FirestoreDB, "Posts", data.id);
+    const docSnap = await getDoc(ref);
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+      if (docSnap.data().Followers.includes(CurrentUser)) {
+        setFollowings(true);
+      } else {
+        setFollowings(false);
+      }
     }
-  }, [followings]);
+  }
+  checkFollow();
+ })
+
+
+
+
+
 
   const handleFollow = async (data) => {
     const x = followings ? await UnFollow(data) : await Follow(data);
-    // console.log(x);
     setFollowings(x);
   };
 

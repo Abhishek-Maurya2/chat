@@ -46,27 +46,35 @@ const Signup = () => {
         .then(async (userCred) => {
           const response = await fetch(image);
           const blob = await response.blob();
-          const storageRef = ref(FirebaseStorage, "ProfilePic/" + userCred.user.uid);
+          const storageRef = ref(
+            FirebaseStorage,
+            "ProfilePic/" + userCred.user.uid
+          );
           const snapshot = await uploadBytes(storageRef, blob);
           const downloadURL = await getDownloadURL(snapshot.ref);
           const data = {
-                _id: userCred.user.uid,
-                fullName: name,
-                PhoneNumber: PhoneNumber,
-                profilePic: downloadURL,
-                providerData: userCred.user.providerData[0],
-                Followers: [],
-                Following: [],
-              };
-              setDoc(doc(FirestoreDB, "users", userCred.user.uid), data)
-                .then(() => {
-                  console.log(data)
-                  navigation.navigate("SplashScreen");
-                })
-                .catch((error) => {
-                  console.error("Error writing document: ", error);
+            _id: userCred.user.uid,
+            fullName: name,
+            PhoneNumber: PhoneNumber,
+            profilePic: downloadURL,
+            providerData: userCred.user.providerData[0],
+          };
+          setDoc(doc(FirestoreDB, "users", userCred.user.uid), data)
+            .then(() => {
+              try {
+                const postRef = doc(FirestoreDB, "Posts", userCred.user.uid);
+                setDoc(postRef, {
+                  Followers: [],
                 });
+              } catch (err) {
+                console.log(err);
+              }
+              navigation.navigate("SplashScreen");
             })
+            .catch((error) => {
+              console.error("Error writing document: ", error);
+            });
+        })
         .catch((error) => {
           console.error("Error creating user: ", error);
         });

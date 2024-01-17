@@ -19,7 +19,7 @@ import { pickCamera, pickImage } from "../components/User";
 import { Colors } from "../components/Colors";
 
 import RBSheet from "react-native-raw-bottom-sheet";
-import { addDoc, collection, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { ActivityIndicator, ProgressBar } from "react-native-paper";
 
@@ -84,10 +84,8 @@ const Home = ({ route }) => {
         user: user._id,
         createdAt: new Date(),
       };
-      await addDoc(
-        collection(FirestoreDB, "Posts", user._id, "PostsData"),
-        newPost
-      ).then(() => {
+      const ref = collection(FirestoreDB, "Posts", user._id, "PostsList");
+      await addDoc(ref, newPost).then(() => {
         console.log("Post Added!");
         setPostImage(null);
         setCaption("");
@@ -244,7 +242,7 @@ const Home = ({ route }) => {
               }}
             >
               {loading ? (
-               <ActivityIndicator color="#ffffff" size="small" />
+                <ActivityIndicator color="#ffffff" size="small" />
               ) : (
                 <Feather name="send" size={20} color="#ffffff" />
               )}

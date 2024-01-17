@@ -1,7 +1,7 @@
 import React from "react";
 import Chat from "../Screens/Chat/Chat";
 import Status from "../Screens/statusComp/Status";
-import Community from "../Screens/Community";
+import Community from "../Screens/Community/Community";
 import Calls from "../Screens/Calls";
 import { MaterialCommunityIcons, Feather } from "react-native-vector-icons";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
