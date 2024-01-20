@@ -1,32 +1,29 @@
 import { useState, useEffect } from "react";
 import { FirebaseAuth, FirestoreDB } from "../Auth/FirebaseConfig";
-import { collection, getDocs, query, where, onSnapshot, orderBy, limit, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+  limit,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import * as VideoThumbnails from "expo-video-thumbnails";
-import { Camera, CameraType } from "expo-camera";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 let user = FirebaseAuth.currentUser;
-export const useUser = () => {
-  const [userData, setUserData] = useState(null);
-
-  useEffect(() => {
-    const user = FirebaseAuth.currentUser;
-    const getUserData = async () => {
-      const docRef = doc(FirestoreDB, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUserData(docSnap.data());
-      } else {
-        console.log("No such document!");
-      }
-    };
-
-    getUserData();
-  }, []);
-
-  // console.log("Exported users Data", userData);
-  return userData;
+export const useUser = async () => {
+  const user = FirebaseAuth.currentUser;
+  const docRef = doc(FirestoreDB, "users", user.uid);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docSnap.data();
+  } else {
+    console.log("No such document!");
+  }
 };
 
 export const generateThumbnail = async (videoUri) => {
@@ -97,7 +94,7 @@ export const getLastMessage = async (chatId) => {
       text: lastMessage.text,
       createdAt: lastMessage.createdAt,
       fileTypes: lastMessage.fileType,
-    }
+    };
     console.log("Exported last message: ", x);
     return x;
   } else {

@@ -54,6 +54,11 @@ const ChatPage = ({ route }) => {
     }
   };
 
+  const scrollViewRef = useRef();
+  const scrollToBottom = () => {
+    scrollViewRef.current.scrollToEnd({ animated: true });
+  };
+
   const data = route.params.chatId;
   const friend = route.params.chatId._id;
   const user = FirebaseAuth.currentUser.uid;
@@ -166,10 +171,6 @@ const ChatPage = ({ route }) => {
     setSelectedItem(item);
     setIsModalVisible(true);
   };
-  const scrollViewRef = useRef();
-  const scrollToBottom = () => {
-    scrollViewRef.current.scrollToEnd({ animated: true });
-  };
 
   const UserMessageView = (message, time, key, file, fileType, name) => {
     return (
@@ -177,7 +178,11 @@ const ChatPage = ({ route }) => {
         <View style={styles.InneruserContainer}>
           {fileType === "jpeg" && (
             <Pressable onPress={() => handlePress(file, name, time, message)}>
-              <Image source={{ uri: file }} style={styles.imageinChat} />
+              <Image
+                source={{ uri: file }}
+                style={styles.imageinChat}
+                resizeMode="cover"
+              />
             </Pressable>
           )}
           {fileType === "mp4" && (
@@ -394,7 +399,9 @@ const ChatPage = ({ route }) => {
               </View>
             </View>
             <View style={styles.Bright}>
-              {loading ? <ActivityIndicator size="small" color="white" /> : sendEnable ? (
+              {loading ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : sendEnable ? (
                 <Feather
                   name="send"
                   size={20}
@@ -433,7 +440,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 5,
+    paddingTop: 40,
     paddingBottom: 10,
     paddingHorizontal: 10,
     backgroundColor: Colors.background,
@@ -516,72 +523,70 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
   },
 
-  // Body
+  //body
   userContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  InneruserContainer: {
+    flexDirection: "column",
+    maxWidth: "60%",
+    backgroundColor: "#e8fbce",
+    borderRadius: 15,
+  },
+  imageinChat: {
+    width: 220,
+    height: 220,
+    borderRadius: 15,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  message: {
+    fontSize: 16,
+    paddingHorizontal: 10,
+    paddingTop: 5,
+  },
+  info: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+  },
+  time: {
+    fontSize: 12,
+    color: "#676767",
+  },
+  checkIcon: {
+    paddingLeft: 5,
+  },
+  OtherUserTime: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingHorizontal: 10,
+    paddingBottom: 2,
   },
   otherUserContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
-  },
-  InneruserContainer: {
-    flexDirection: "column",
-    backgroundColor: "#e5f5d6",
-    paddingTop: 10,
     paddingHorizontal: 10,
-    margin: 10,
-    marginVertical: 5,
-    borderRadius: 5,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    borderBottomLeftRadius: 40,
-    maxWidth: "60%",
-  },
-  imageinChat: {
-    width: 180,
-    height: 180,
-    borderRadius: 35,
+    paddingVertical: 10,
   },
   InnerOtherUserContainer: {
     flexDirection: "column",
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    margin: 10,
-    padding: 10,
-    paddingBottom: 0,
-    borderTopRightRadius: 40,
-    borderBottomRightRadius: 40,
-    borderBottomLeftRadius: 40,
     maxWidth: "60%",
-  },
-  message: {
-    fontSize: 15,
-  },
-  OtherUserTime: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    paddingLeft: 10,
-  },
-  time: {
-    fontSize: 11,
-    color: "#808080",
-    marginBottom: 3,
-  },
-  info: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  checkIcon: {
-    marginLeft: 8,
+    backgroundColor: "#fff",
+    borderRadius: 15,
   },
   scroll: {
     position: "absolute",
-    bottom: 65,
-    right: 10,
+    bottom: 80,
+    right: 20,
     backgroundColor: "#53d57e",
+    padding: 3,
     borderRadius: 50,
-    padding: 5,
   },
 });

@@ -39,7 +39,7 @@ const RecentStatus = () => {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setStatus(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
-    console.log("status : ", status);
+    // console.log("status : ", status);
     return () => unsubscribe();
   }, []);
 

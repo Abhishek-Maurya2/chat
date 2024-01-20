@@ -17,7 +17,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.safearea}>
+    // <SafeAreaView style={styles.safearea}>
       <PaperProvider>
         <NavigationContainer style={styles.container}>
           <Stack.Navigator>
@@ -59,7 +59,7 @@ export default function App() {
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>
-    </SafeAreaView>
+    //</SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

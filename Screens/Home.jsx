@@ -19,7 +19,14 @@ import { pickCamera, pickImage } from "../components/User";
 import { Colors } from "../components/Colors";
 
 import RBSheet from "react-native-raw-bottom-sheet";
-import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { ActivityIndicator, ProgressBar } from "react-native-paper";
 
@@ -40,12 +47,11 @@ const Home = ({ route }) => {
   };
 
   useEffect(() => {
+    const fetchImage = async () => {
+      setImageUrl(user.profilePic);
+    };
     fetchImage();
   }, []);
-
-  const fetchImage = async () => {
-    setImageUrl(user.profilePic);
-  };
 
   const [postImage, setPostImage] = useState(null);
   const handleCamera = async () => {
@@ -58,6 +64,7 @@ const Home = ({ route }) => {
   };
   const [caption, setCaption] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pg, setPg] = useState(0);
   const UploadMedia = async () => {
     const name = `${Math.random().toString(36).substring(1)}`;
     const response = await fetch(postImage.uri);
@@ -67,7 +74,7 @@ const Home = ({ route }) => {
 
     uploadTask.on("state_changed", (snapshot) => {
       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      console.log("Uploading Image : " + progress + "% done");
+      setPg(progress / 100);
     });
 
     const snapshot = await uploadTask;
@@ -81,11 +88,14 @@ const Home = ({ route }) => {
       const newPost = {
         caption: caption,
         image: image,
-        user: user._id,
+        likes: [],
+        comments: [],
+        createdBy: user._id,
         createdAt: new Date(),
       };
-      const ref = collection(FirestoreDB, "Posts", user._id, "PostsList");
-      await addDoc(ref, newPost).then(() => {
+      const postRef = await addDoc(collection(FirestoreDB, "Posts"), newPost);
+      const userRef = doc(FirestoreDB, "users", user._id);
+      await updateDoc(userRef, { Posts: arrayUnion(postRef.id) }).then(() => {
         console.log("Post Added!");
         setPostImage(null);
         setCaption("");
@@ -147,6 +157,14 @@ const Home = ({ route }) => {
         }}
       >
         <View>
+          {loading && (
+            <ProgressBar
+              progress={pg}
+              color={Colors.primary}
+              style={{ height: 3 }}
+            />
+          )}
+
           <Text
             style={{
               fontSize: 20,
@@ -169,7 +187,9 @@ const Home = ({ route }) => {
                 source={{ uri: postImage.uri }}
               />
             ) : (
-              <View
+              <Pressable
+                android_ripple={{ color: "grey" }}
+                onPress={() => handleImage()}
                 style={{
                   backgroundColor: "#9897974e",
                   height: 260,
@@ -182,7 +202,7 @@ const Home = ({ route }) => {
                 <Text style={{ fontSize: 18, color: "grey" }}>
                   No Image Selected.
                 </Text>
-              </View>
+              </Pressable>
             )}
           </View>
           <Pressable
@@ -275,7 +295,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 15,
-    paddingTop: 4,
+    paddingTop: 40,
     paddingBottom: 12,
     borderTopEndRadius: 0,
     borderTopStartRadius: 0,

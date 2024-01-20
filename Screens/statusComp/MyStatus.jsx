@@ -16,14 +16,16 @@ import { useUser, pickImage } from "../../components/User.jsx";
 const MyStatus = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [usersData, setUsersData] = useState([]);
 
-  const usersData = useUser();
   useEffect(() => {
-    // console.log("Status Screen Data : ", usersData);
-    if (usersData) {
+    const getUser = async () => {
+      const data = await useUser();
+      await setUsersData(data);
       setLoading(false);
-    }
-  }, [usersData]);
+    };
+    getUser();
+  },[]);
 
   
   const pick = async () => {
