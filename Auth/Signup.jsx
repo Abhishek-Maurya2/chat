@@ -13,9 +13,12 @@ import { FirebaseAuth, FirestoreDB, FirebaseStorage } from "./FirebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import useAuthStore from "../store/AuthStore";
 
 const Signup = () => {
   const navigation = useNavigation();
+  const SignUpUser = useAuthStore((state) => state.login);
 
   //image picker
   const [image, setImage] = useState(null);
@@ -64,14 +67,8 @@ const Signup = () => {
           };
           setDoc(doc(FirestoreDB, "users", userCred.user.uid), data)
             .then(() => {
-              try {
-                const postRef = doc(FirestoreDB, "Posts", userCred.user.uid);
-                setDoc(postRef, {
-                  Followers: [],
-                });
-              } catch (err) {
-                console.log(err);
-              }
+              AsyncStorage.setItem("LoggedIn-User", JSON.stringify(data));
+              SignUpUser(data);
               navigation.navigate("SplashScreen");
             })
             .catch((error) => {

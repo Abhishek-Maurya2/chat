@@ -4,8 +4,6 @@ import {
   collection,
   getDocs,
   query,
-  where,
-  onSnapshot,
   orderBy,
   limit,
   doc,
@@ -13,11 +11,12 @@ import {
 } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import * as VideoThumbnails from "expo-video-thumbnails";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 let user = FirebaseAuth.currentUser;
 export const useUser = async () => {
-  const user = FirebaseAuth.currentUser;
-  const docRef = doc(FirestoreDB, "users", user.uid);
+  const user = JSON.parse(await AsyncStorage.getItem("LoggedIn-User"));
+  const docRef = doc(FirestoreDB, "users", user._id);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     return docSnap.data();

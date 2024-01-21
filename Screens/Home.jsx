@@ -28,29 +28,38 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { ActivityIndicator, ProgressBar } from "react-native-paper";
+import { ActivityIndicator, ProgressBar, Avatar } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import useAuthStore from "../store/AuthStore";
+import { useNavigation } from "@react-navigation/native";
 
-const Home = ({ route }) => {
+const Home = () => {
+  const navigation = useNavigation();
+  const LogoutUser = useAuthStore(state => state.logout);
   const refRBSheet = useRef();
-  const [imageUrl, setImageUrl] = useState(null);
-  const { user } = route.params;
+  let user;
 
   const Logout = () => {
     // Logout logic here
     FirebaseAuth.signOut()
       .then(() => {
-        console.log("User signed out!");
+        AsyncStorage.removeItem("LoggedIn-User");
+        LogoutUser();
+        navigation.replace("Login");
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
+  const [imageUrl, setImageUrl] = useState(null);
   useEffect(() => {
-    const fetchImage = async () => {
-      setImageUrl(user.profilePic);
-    };
-    fetchImage();
+    const fetchUserData = async () => {
+      const data = await AsyncStorage.getItem("LoggedIn-User");
+      user = JSON.parse(data);
+      setImageUrl(user?.profilePic);
+    }
+    fetchUserData();
   }, []);
 
   const [postImage, setPostImage] = useState(null);
@@ -124,12 +133,12 @@ const Home = ({ route }) => {
           </Pressable>
           <Feather name="search" size={20} color="black" />
           <Pressable onPress={Logout}>
-            {imageUrl && (
-              <Image
-                style={{ width: 35, height: 35, borderRadius: 20 }}
-                source={{ uri: imageUrl }}
-              />
-            )}
+            <Avatar.Image
+              size={35}
+              source={{
+                uri: imageUrl,
+              }}
+            />
           </Pressable>
         </View>
       </View>
