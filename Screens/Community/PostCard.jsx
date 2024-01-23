@@ -20,8 +20,10 @@ import {
 } from "../../components/Functionality";
 import { FirebaseAuth } from "../../Auth/FirebaseConfig";
 import RBSheet from "react-native-raw-bottom-sheet";
+import { useNavigation } from "@react-navigation/native";
 
 const PostCard = ({ postData }) => {
+  const navigation = useNavigation();
   const currentAuthUser = FirebaseAuth.currentUser;
   const x = postData;
   // console.log(x);
@@ -70,11 +72,22 @@ const PostCard = ({ postData }) => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.headerLeft}>
-          <Pressable style={styles.avatar}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate("Profile", { chatId: userData });
+            }}
+            style={styles.avatar}
+          >
             <Avatar.Image size={40} source={{ uri: userData.profilePic }} />
           </Pressable>
           <View style={styles.profileContainer}>
-            <Text style={styles.profileName}>{userData.fullName}</Text>
+            <Pressable
+              onPress={() => {
+                navigation.navigate("Profile", { chatId: userData });
+              }}
+            >
+              <Text style={styles.profileName}>{userData.fullName}</Text>
+            </Pressable>
             <Text style={styles.timeText}>
               {x.createdAt.toDate().toLocaleTimeString([], {
                 hour: "2-digit",
@@ -155,7 +168,7 @@ const PostCard = ({ postData }) => {
       </View>
 
       <RBSheet
-        height={500}
+        height={700}
         ref={refRBSheet}
         nestedScrollEnabled={true}
         closeOnDragDown={true}
@@ -186,72 +199,69 @@ const PostCard = ({ postData }) => {
           >
             Comments
           </Text>
-            <FlatList
+          <FlatList
             nestedScrollEnabled={true}
-              keyExtractor={(item) => item.commentedAt.seconds}
-              height={330}
-              data={x.comments}
-              renderItem={({ item }) => (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    paddingVertical: 10,
-                    paddingHorizontal: 10,
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ fontSize: 18, maxWidth: "80%" }}>
-                    {item.comment}
-                  </Text>
-                  <Text style={{ color: "grey", fontSize: 12 }}>
-                    {item.commentedAt &&
-                      item.commentedAt.toDate().toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                  </Text>
-                </View>
-              )}
-            />
-          <View style={{}}>
-            <TextInput
-              placeholder="Add Comment"
-              multiline={true}
-              numberOfLines={2}
-              onChangeText={(text) => setComment(text)}
-              style={{
-                marginVertical: 15,
-                marginHorizontal: 20,
-                backgroundColor: "#9897974e",
-                borderRadius: 30,
-                paddingHorizontal: 20,
-                fontSize: 15,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            />
-            <Pressable
-              android_ripple={{ color: "grey" }}
-              onPress={handleComment}
-              style={{
-                paddingVertical: 10,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: Colors.primary,
-                borderRadius: 30,
-                marginHorizontal: 20,
-                paddingHorizontal: 20,
-                alignSelf: "flex-end",
-                flexDirection: "row",
-              }}
-            >
-              <Feather name="send" size={18} color="white" />
-              <Text style={{ color: "white", fontSize: 15, paddingLeft: 7 }}>
-                Post
-              </Text>
-            </Pressable>
-          </View>
+            keyExtractor={(item) => item.commentedAt.seconds}
+            data={x.comments}
+            renderItem={({ item }) => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingVertical: 10,
+                  paddingHorizontal: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 18, maxWidth: "80%" }}>
+                  {item.comment}
+                </Text>
+                <Text style={{ color: "grey", fontSize: 12 }}>
+                  {item.commentedAt &&
+                    item.commentedAt.toDate().toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                </Text>
+              </View>
+            )}
+          />
+          <TextInput
+            placeholder="Add Comment"
+            multiline={true}
+            numberOfLines={2}
+            onChangeText={(text) => setComment(text)}
+            style={{
+              marginVertical: 15,
+              marginHorizontal: 20,
+              backgroundColor: "#9897974e",
+              borderRadius: 30,
+              paddingHorizontal: 20,
+              fontSize: 15,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          />
+          <Pressable
+            android_ripple={{ color: "grey" }}
+            onPress={handleComment}
+            style={{
+              paddingVertical: 10,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: Colors.primary,
+              borderRadius: 30,
+              marginHorizontal: 20,
+              paddingHorizontal: 20,
+              alignSelf: "flex-end",
+              flexDirection: "row",
+            }}
+          >
+            <Feather name="send" size={18} color="white" />
+            <Text style={{ color: "white", fontSize: 15, paddingLeft: 7 }}>
+              Post
+            </Text>
+          </Pressable>
         </View>
       </RBSheet>
     </View>

@@ -40,32 +40,3 @@ export const getUserById = async (userId) => {
     console.log("No such document!");
   }
 };
-
-export const likePost = async (postId) => {
-  const CurrentUser = FirebaseAuth.currentUser;
-  const ref = doc(FirestoreDB, "Posts", postId);
-  await updateDoc(ref, {
-    likes: arrayUnion(CurrentUser.uid),
-  });
-  console.log("Liked");
-  return true;
-};
-
-export const unlikePost = async (postId) => {
-  const CurrentUser = FirebaseAuth.currentUser;
-  const ref = doc(FirestoreDB, "Posts", postId);
-  await updateDoc(ref, {
-    likes: arrayRemove(CurrentUser.uid),
-  });
-  console.log("UnLiked");
-  return false;
-}
-
-export const commentPost = async (postId, comment) => {
-  const CurrentUser = FirebaseAuth.currentUser;
-  const ref = doc(FirestoreDB, "Posts", postId);
-  await updateDoc(ref, {
-    comments: arrayUnion({comment: comment, commentedBy: CurrentUser.uid, commentedAt: new Date()}),
-  });
-  // console.log("Commented");
-}

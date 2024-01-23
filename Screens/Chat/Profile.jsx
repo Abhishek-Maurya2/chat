@@ -201,10 +201,12 @@ const styles = StyleSheet.create({
   profileSection: {
     flexDirection: "row",
     justifyContent: "space-evenly",
+    flexWrap: "wrap",
   },
   infoContainer: {
     marginLeft: 10,
     marginTop: 15,
+    alignItems: "center",
   },
   followSection: {
     alignItems: "center",
@@ -215,6 +217,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-evenly",
+    flexWrap: "wrap",
   },
   bioSection: {
     backgroundColor: Colors.background,

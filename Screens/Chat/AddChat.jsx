@@ -24,11 +24,24 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { Colors } from "../../components/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Avatar } from "react-native-paper";
 
 const AddChat = () => {
   const navigation = useNavigation();
   const uid = FirebaseAuth.currentUser.uid;
 
+  const [CurrentUser, setCurrentUser] = useState({});
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const data = await AsyncStorage.getItem("LoggedIn-User");
+      const x = JSON.parse(data);
+      setCurrentUser(x);
+    };
+    fetchUserData();
+  }, []);
+  console.log("Current User : ", CurrentUser);
   const [showSearch, setShowSearch] = useState(false);
   const [addChat, setAddChat] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -73,7 +86,6 @@ const AddChat = () => {
     const friendRef = doc(FirestoreDB, "users", friendID);
     await updateDoc(friendRef, {
       participants: arrayUnion(uid),
-      
     });
     const userRef = doc(FirestoreDB, "users", uid);
     await updateDoc(userRef, {
@@ -155,9 +167,12 @@ const AddChat = () => {
               color="black"
               onPress={OnSearch}
             />
-            <Image
-              style={styles.profile}
-              source={require("./../../assets/images/1.png")}
+
+            <Avatar.Image
+              source={{
+                uri: CurrentUser.profilePic,
+              }}
+              size={35}
             />
           </View>
         </View>
@@ -191,7 +206,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.background,
     padding: 10,
-    paddingTop: 40,
+    paddingTop: 4,
     borderBottomEndRadius: 15,
     borderBottomStartRadius: 15,
     paddingBottom: 10,
@@ -217,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
-    paddingTop: 45,
+    paddingTop: 5,
     backgroundColor: Colors.background,
     borderBottomEndRadius: 15,
     borderBottomStartRadius: 15,

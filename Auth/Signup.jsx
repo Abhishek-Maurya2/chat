@@ -18,7 +18,7 @@ import useAuthStore from "../store/AuthStore";
 
 const Signup = () => {
   const navigation = useNavigation();
-  const SignUpUser = useAuthStore((state) => state.login);
+  // const SignUpUser = useAuthStore((state) => state.login);
 
   //image picker
   const [image, setImage] = useState(null);
@@ -68,7 +68,7 @@ const Signup = () => {
           setDoc(doc(FirestoreDB, "users", userCred.user.uid), data)
             .then(() => {
               AsyncStorage.setItem("LoggedIn-User", JSON.stringify(data));
-              SignUpUser(data);
+              // SignUpUser(data);
               navigation.navigate("SplashScreen");
             })
             .catch((error) => {

@@ -181,7 +181,7 @@ const ChatPage = ({ route }) => {
               <Image
                 source={{ uri: file }}
                 style={styles.imageinChat}
-                resizeMode="cover"
+                resizeMode="contain"
               />
             </Pressable>
           )}
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: 4,
     paddingBottom: 10,
     paddingHorizontal: 10,
     backgroundColor: Colors.background,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   userContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    paddingHorizontal: 10,
+    paddingHorizontal: 11,
     paddingVertical: 10,
   },
   InneruserContainer: {
@@ -537,8 +537,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   imageinChat: {
-    width: 220,
-    height: 220,
+    width: 200,
+    height: 200,
     borderRadius: 15,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,

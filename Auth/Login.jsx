@@ -18,7 +18,7 @@ import useAuthStore from "../store/AuthStore";
 
 const Login = () => {
   const navigation = useNavigation();
-  const LoginUser = useAuthStore((state) => state.login);
+  // const LoginUser = useAuthStore((state) => state.login);
 
 
   //login
@@ -38,7 +38,7 @@ const Login = () => {
                     "LoggedIn-User",
                     JSON.stringify(docSnap.data())
                   );
-                  LoginUser(docSnap.data());
+                  // LoginUser(docSnap.data());
                   navigation.replace("Home");
                 }
               }
