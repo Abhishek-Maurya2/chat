@@ -69,9 +69,9 @@ const Navigation = () => {
         options={{
           tabBarIcon: ({ color, focused }) =>
             focused ? (
-              <FontAwesome5 name="phone-alt" size={19} color={color} />
+              <FontAwesome5 name="video" size={19} color={color} />
             ) : (
-              <Feather name="phone" size={20} color={color} />
+              <Feather name="video" size={20} color={color} />
             ),
         }}
       />
